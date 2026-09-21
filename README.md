@@ -59,13 +59,13 @@ Admins can:
 
   - Fields include:
 
-        Service Name (required, max 100 characters)
+       Service Name (required, max 100 characters)
 
-        Description (required)
+       Description (required)
 
-        Expected Duration (minutes, required)
+       Expected Duration (minutes, required)
 
-        Priority Level (low / medium / high)
+       Priority Level (low / medium / high)
 
 Queue Management Screen
 

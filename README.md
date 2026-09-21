@@ -1,49 +1,55 @@
 # UH_COSC_4353_Assignment_2
 Repository for COSC4353 Assignment 2
 
-Requirements:
+**Requirements:**
 
-1. Authentication Screens : index.html
+1. **Authentication Screens** : index.html
    - Login Screen
       - Email(used as username)
       - password
   - Basic client-side validation
 
-2. User Screens : user.html
+
+
+
+2.** User Screens** : user.html
    
-   User Dashboard
+   **User Dashboard**
 
-    - Overview of current queue status
+   - Overview of current queue status
 
-    - Active services available
+   - Active services available
 
-    - Notifications summary
+   - Notifications summary
 
-Join Queue Screen
+   **Join Queue Screen**
+   
+   - Select a service
+   
+   - View estimated wait time
+   
+   - Join or leave a queue
+   
+   **Queue Status Screen**
+   
+   - Current position in queue
+   
+   - Estimated wait time
+   
+   - Status updates (waiting, almost ready, served)
 
-  - Select a service
+  **History Screen**
+   
+   - List of past queues joined
+   
+   - Date, service name, and outcome
 
-  - View estimated wait time
 
-  - Join or leave a queue
 
-Queue Status Screen
 
-  - Current position in queue
+3. **Administrator Screens** : admin.html
 
-  - Estimated wait time
-
-  - Status updates (waiting, almost ready, served)
-
-History Screen
-
-  - List of past queues joined
-
-  - Date, service name, and outcome
-
-3. Administrator Screens : admin.html
-
-   - Admin Dashboard
+     **Admin Dashboard**
 
     - List of services
 
@@ -51,32 +57,34 @@ History Screen
 
     - Quick actions (open/close queue)
 
-Service Management Screen
+   **Service Management Screen**
+   
+      Admins can:
+   
+     - Create or edit services
+   
+     - Fields include:
+   
+          Service Name (required, max 100 characters)
+   
+          Description (required)
+   
+          Expected Duration (minutes, required)
+   
+          Priority Level (low / medium / high)
+   
+   **Queue Management Screen**
+   
+     - View queue for a selected service
+   
+     - Reorder or remove users (UI only)
+   
+     - Serve next user (UI simulation)
 
-Admins can:
-
-  - Create or edit services
-
-  - Fields include:
-
-       Service Name (required, max 100 characters)
-
-       Description (required)
-
-       Expected Duration (minutes, required)
-
-       Priority Level (low / medium / high)
-
-Queue Management Screen
-
-  - View queue for a selected service
-
-  - Reorder or remove users (UI only)
-
-  - Serve next user (UI simulation)
 
 
-4. Notifications
+
+4. **Notifications**
    
   - Display notifications in the UI for:
 
@@ -86,7 +94,10 @@ Queue Management Screen
 
   - Notifications may be in-app only for this assignment
 
-5. UI Validations (required)
+
+
+
+5.** UI Validations (required)**
 
   - Required fields
 

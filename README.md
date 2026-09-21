@@ -12,7 +12,7 @@ Repository for COSC4353 Assignment 2
 
 
 
-2.** User Screens** : user.html
+2. **User Screens** : user.html
    
    **User Dashboard**
 
@@ -97,7 +97,7 @@ Repository for COSC4353 Assignment 2
 
 
 
-5.** UI Validations (required)**
+5. **UI Validations (required)**
 
   - Required fields
 

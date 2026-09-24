@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login_Screen</title>
+    <title>Registration Page</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -12,7 +12,7 @@
         <h1>QueueSense</h1>
     </header>
 
-    <form class ="login_form">
+    <form class="register_form">
 
         <div class="form_group">
             <label for="email">Email: </label>
@@ -25,19 +25,18 @@
         </div>
 
         <div class="form_group">
-            <button type="submit">Submit</button>
+            <label for="confirmPassword">Confirm Password: </label>
+            <input type="password" name="confirmPassword" id="confirmPassword" required>
         </div>
 
-        <div class="form_signup">
-            <p style="display:inline-block">Don't have an account, </p>
-            <a href="register.html">sign up</a>
-            <p style="display:inline-block"> now.</p>
+        <div class="form_group">
+            <button type="submit">Register</button>
         </div>
 
-        <div>
-            <p style="display:inline-block"> Temp links: </p>
-            <a style="padding:5px;" href="user.html"> users</a>
-            <a href="admin.html"> admin</a>
+        <div class="form_back">
+            <p style="display:inline-block">Go </p>
+            <a href="index.html">back</a>
+            <p style="display:inline-block"> to login.</p>
         </div>
         
     </form>

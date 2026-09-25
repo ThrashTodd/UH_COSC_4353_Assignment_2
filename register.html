@@ -12,40 +12,30 @@
     <header class="banner">
         <h1>QueueSense</h1>
     </header>
+    <div class="wrapper">
+        <p id="errorMessage"></p>
+        <form class="form" id="form">
+            <div>
+                <label for="usernameInput">
+                <input type="text" name="usernameInput" id="usernameInput" placeholder="Username" >
+            </div>
+            <div>
+                <label for="email">
+                <input type="email" name="emailInput" id="emailInput" placeholder="Email" >
+            </div>
+            <div>
+                <label for="password">
+                <input type="password" name="passwordInput" id="passwordInput" placeholder="Password" >
+            </div>
+            <div>
+                <label for="confirmPassword">
+                <input type="password" name="confirmPassword" id="confirmPassword" placeholder="Confirm Password" >
+            </div>
 
-    <form class="register_form">
-
-        <div class="form_group">
-            <label for="username">Username: </label>
-            <input type="text" name="username" id="username" required>
-        </div>
-
-        <div class="form_group">
-            <label for="email">Email: </label>
-            <input type="text" name="email" id="email" required>
-        </div>
-
-        <div class="form_group">
-            <label for="password">Password: </label>
-            <input type="password" name="password" id="password" required>
-        </div>
-
-        <div class="form_group">
-            <label for="confirmPassword">Confirm Password: </label>
-            <input type="password" name="confirmPassword" id="confirmPassword" required>
-        </div>
-
-        <div class="form_group">
             <button type="submit">Register</button>
-        </div>
-
-        <div class="form_back">
-            <p style="display:inline-block">Go </p>
-            <a href="index.html">back</a>
-            <p style="display:inline-block"> to login.</p>
-        </div>
-        
-    </form>
-
+        </form>
+        <p>Already a user? <a href="index.html">Log in</a></p>
+        <p>Temp Link: <a href="user.html">user</a>, <a href="admin.html">admin</a>.</p>
+    </div>
 </body>
 </html>

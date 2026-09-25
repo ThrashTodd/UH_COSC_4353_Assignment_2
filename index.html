@@ -12,36 +12,21 @@
     <header class="banner">
         <h1>QueueSense</h1>
     </header>
-
-    <form class ="login_form">
-
-        <div class="form_group">
-            <label for="email">Email: </label>
-            <input type="text" name="email" id="email" required>
-        </div>
-
-        <div class="form_group">
-            <label for="password">Password: </label>
-            <input type="password" name="password" id="password" required>
-        </div>
-
-        <div class="form_group">
-            <button type="submit">Submit</button>
-        </div>
-
-        <div class="form_signup">
-            <p style="display:inline-block">Don't have an account, </p>
-            <a href="register.html">sign up</a>
-            <p style="display:inline-block"> now.</p>
-        </div>
-
-        <div>
-            <p style="display:inline-block"> Temp links: </p>
-            <a style="padding:5px;" href="user.html"> users</a>
-            <a href="admin.html"> admin</a>
-        </div>
-        
-    </form>
-
+    <div class="wrapper">
+        <p id="errorMessage"></p>
+        <form class="form" id="form">
+            <div>
+                <label for="username">
+                <input type="username" name="usernameInput" id="usernameInput" placeholder="Username">
+            </div>
+            <div>
+                <label for="password">
+                <input type="password" name="passwordInput" id="passwordInput" placeholder="Password">
+            </div>
+            <button type="submit">Log in</button>
+        </form>
+        <p>Don't have an account? <a href="register.html">Sign up</a> here.</p>
+        <p>Temp Link: <a href="user.html">user</a>, <a href="admin.html">admin</a>.</p>
+    </div>
 </body>
 </html>

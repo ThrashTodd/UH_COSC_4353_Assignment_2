@@ -34,26 +34,37 @@ body {
     padding: 20px;
 }
 
-.form_group {
+.wrapper {
+    box-sizing: border-box;
+    height: 100vh;
     display: flex;
     flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+.form {
+    width: min(400px, 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+.form > div {
     width: 100%;
-    margin-bottom: 15px;
+    display: flex;
+    justify-content: center;
 }
-
-.form_group label {
-    margin-bottom: 5px;
-    font-weight: bold;
+.form label {
+    width: 50px;
+    height:25px;
+    padding-right: 10px;
+    display: flex;
+    justify-content: center;
 }
-
-.form_group input {
-    padding: 5px;
-    font-size: 15px;
-    width: 100%;
-    box-sizing: border-box;
+.form input:hover{
+    border-color: black;
 }
-
-button {
+.form button {
     cursor: pointer;
     padding: 5px;
     font-size: 15px;
@@ -61,12 +72,16 @@ button {
     color: black;
     border-radius: 5px;
 }
-
 .form_signup {
     text-align: center;
     margin-top: 10px;
 }
-
 .form_back {
     text-align: center;
+}
+.incorrect label, .incorrect input {
+    border-color: red;
+}
+#errorMessage{
+    color: red;
 }

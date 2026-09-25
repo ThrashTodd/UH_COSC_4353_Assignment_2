@@ -1,26 +1,24 @@
-
-
-const usersMap = new Map([
-    // map of users for const lookup
-    // username : email, password, role
-    [
-        "admin1",
-        { email: "admin@example.com", password: "admin123", role: "admin" }
-    ],
-    [
-        "user1",
-    { email: "user1@example.com", password: "user1_123", role: "user" }
-    ],
-    [
-        "user2",
-        { email: "user2@example.com", password: "user2_123", role: "user" }
-    ]
-])
-
-// turns map into array to be stored as string
-localStorage.setItem("users", JSON.stringify([...usersMap]));
-
-
+// only creates list if users not in local storage
+if(!localStorage.getItem("users")){
+    const usersMap = new Map([
+        // map of users for const lookup
+        // username : email, password, role
+        [
+            "admin1",
+            { email: "admin@example.com", password: "admin123", role: "admin" }
+        ],
+        [
+            "user1",
+        { email: "user1@example.com", password: "user1_123", role: "user" }
+        ],
+        [
+            "user2",
+            { email: "user2@example.com", password: "user2_123", role: "user" }
+        ]
+    ])
+    // turns map into array to be stored as string
+    localStorage.setItem("users", JSON.stringify([...usersMap]));
+}
 function addNewUser( userName, newEmail, newPassword, newRole= "user") {
     // function to add a new user
 
@@ -60,22 +58,36 @@ form.addEventListener("submit", (e) => {
         errors = getLoginErrors(usernameInput.value, passwordInput.value)
     }
     if(errors.length > 0){
-        //e.preventDefault()
         errorMessage.innerText = errors.join(". ")
-    } else {
+    } else { // no errors
         errorMessage.innerText = ""
 
-        if(emailInput){
-            window.location.href= "index.html"
-        } else {
-            window.location.href= "user.html"
+        if(emailInput){ // input validated for registration screen
+            let valid = validateRegister(usernameInput.value, emailInput.value, passwordInput.value)
+            // if the username was valid send user to login page
+            if(valid) { window.location.href= "index.html" }
+            else{
+                errors.push("Username taken, try again")
+                errorMessage.innerText = errors.join(". ")
+            }
+        } else { // input validated for login screen
+
+            let [success, msg] = validateLogin(usernameInput.value, passwordInput.value)
+            
+            if(success){ // sends user to proper page
+                window.location.href=msg
+            } else{ // shows why user was unable to login
+                errors.push(msg)
+                errorMessage.innerText = errors.join(". ")
+            }
+            
         }
     }
     
 })
 
-// add user already taken
 function getRegisterErrors(username, email, password, checkPassword){
+    // adds errors for bad username, email, password and passwords that don't match
     let errors = []
 
     if(username === '' || username == null){
@@ -102,10 +114,11 @@ function getRegisterErrors(username, email, password, checkPassword){
     }
 return errors
 }
-// add password matching, no user found 
+
 function getLoginErrors(username, password){
     let errors = []
 
+    // if there isn't a username or its an empty string return error
     if(username === '' || !username){
         errors.push("Username is required")
         usernameInput.parentElement.classList.add("incorrect")
@@ -117,6 +130,7 @@ function getLoginErrors(username, password){
 return errors
 }
 
+// checks all inputs to clear incorrect class
 const allInputs = [usernameInput, emailInput, passwordInput, checkPasswordInput].filter(input => input != null)
 
 allInputs.forEach(input => {
@@ -127,3 +141,49 @@ allInputs.forEach(input => {
         }
     })
 })
+function validateLogin(usernameInput, passwordInput){
+    // takes a valid login attempt and checks credentials
+    let validateUserMap = new Map(JSON.parse(localStorage.getItem("users")))
+    // if user not in database return false
+    if (!validateUserMap.has(usernameInput)){
+        return [false, "User not found"]
+    }
+    // if password doesn't match the one stored return fasle
+    if (validateUserMap.get(usernameInput).password != passwordInput){
+        return [false, "Password incorrect"]
+    }
+    // Change where user is sent depending on role
+    if(validateUserMap.get(usernameInput).role == 'admin'){
+        return [true, "admin.html"]
+    } else { return [true, "user.html"]}
+}
+function validateRegister(newUsername, newEmail, newPassword){
+    // takes valid register attempt and checks if user is taken if not adds to users in local storage
+    let validateUserMap = new Map(JSON.parse(localStorage.getItem("users")))
+
+    // if username is taken dont let it be overwritten
+    if(validateUserMap.has(newUsername)){
+        return false
+    } 
+    // username available, add user
+    addNewUser(newUsername, newEmail, newPassword)
+    return true
+}
+function changeRole(username){
+    // toggles role between user and admin
+    let userMap = new Map(JSON.parse(localStorage.getItem("users")))
+    // if user not found return false and error message
+    if (!userMap.has(username)){
+        return [false, "User not found"]
+    }
+    if(userMap.get(username).role == "user") {
+        userMap.get(username).role = "admin"
+    } else {
+        userMap.get(username).role = "user"
+    }
+    localStorage.setItem("users", JSON.stringify([...userMap]));
+}
+
+// REMOVE LATER: this is to show the change role function using admin1
+const admin1Button = document.getElementById("roleSwitch")
+admin1Button.addEventListener("click", () => changeRole("admin1"))

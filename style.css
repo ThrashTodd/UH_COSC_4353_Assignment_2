@@ -18,6 +18,10 @@ body {
     color: white;
     text-align: center;
     padding: 15px 0;
+    height: 10vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .banner h1 {
@@ -36,7 +40,7 @@ body {
 
 .wrapper {
     box-sizing: border-box;
-    height: 100vh;
+    flex: 1;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -44,6 +48,7 @@ body {
 }
 .form {
     width: min(400px, 100%);
+
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -51,20 +56,25 @@ body {
 }
 .form > div {
     width: 100%;
+    padding-bottom: 5px;
+    display: flex;
+    justify-content: center;
+    box-sizing: border-box;
+}
+.form label {
+    width: 400px;
+    height:50px;
     display: flex;
     justify-content: center;
 }
-.form label {
-    width: 50px;
-    height:25px;
-    padding-right: 10px;
-    display: flex;
-    justify-content: center;
+.form input{
+    width: 100%
 }
 .form input:hover{
     border-color: black;
 }
 .form button {
+    width: 100%;
     cursor: pointer;
     padding: 5px;
     font-size: 15px;

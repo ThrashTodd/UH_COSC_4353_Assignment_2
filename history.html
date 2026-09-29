@@ -1,0 +1,116 @@
+<!-- page showing patient history -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QueueSmart | User Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">
+        <div class="brand-mark">Q</div>
+        <div>
+          <h1>QueueSmart</h1>
+          <p>Dental Clinic</p>
+        </div>
+      </div>
+
+      <nav class="nav-menu">
+        <a class="nav-link" href="dashboard.html">Dashboard</a>
+        <a class="nav-link" href="join-queue.html">Join Queue</a>
+        <a class="nav-link" href="#current-queue">My Queue</a>
+        <a class="nav-link active" href="history.html">History</a> <!-- History button is now highlighted-->
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="help-card">
+          <strong>Need help?</strong>
+          <p>Ask the front desk if you need assistance joining a queue.</p>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <button class="menu-btn" id="menuBtn" aria-label="Open menu">Menu</button>
+        <div>
+          <p class="eyebrow">Patient Portal</p>
+          <h2>History</h2>
+        </div>
+        <div class="profile">
+          <div class="avatar">HL</div>
+          <div class="profile-copy">
+            <strong>Hao Ly</strong>
+            <span>Patient</span>
+          </div>
+        </div>
+      </header>
+
+      <section class="panel services-panel" id="history">
+        <div class="panel-header">
+          <div>
+            <p class="eyebrow">Previous visits</p>
+            <h3>Service History</h3>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Date</th><th>Service</th><th>Physician</th><th>Ticket</th><th>Wait</th><th>Status</th></tr></thead>
+            <tbody>
+              <!-- TODO: show description of service when you hover over Service name-->
+               <!-- TODO: status can be waiting/in queue, in progress, or completed-->
+              <tr><td>Sep 26, 2026</td><td>Dental Cleaning</td><td>Dr. Lee</td><td>C-214</td><td>12 min</td><td><span class="badge success">Completed</span></td></tr>
+              <tr><td>Sep 11, 2026</td><td>General Examination</td><td>Dr. Parker</td><td>A-189</td><td>18 min</td><td><span class="badge success">Completed</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    
+      <section class="panel">
+          <div class="panel-header">
+            <div>
+              <p class="eyebrow">Live status</p>
+              <h3>Join a new queue</h3>
+            </div>
+            <span class="badge neutral" id="queueBadge">Inactive</span>
+          </div>
+
+          <div class="empty-state" id="emptyQueueState">
+            <h4>You are not currently in a queue</h4>
+            <p>Choose a dental service and join the queue to receive your ticket number and wait estimate.</p>
+            <a class="btn btn-primary" href="join-queue.html">Browse Services</a>
+          </div>
+
+          <div class="active-queue-card hidden" id="activeQueueState">
+            <div class="queue-title-row">
+              <div>
+                <p class="eyebrow">Service</p>
+                <h4 id="activeService">General Examination</h4>
+              </div>
+              <span class="badge success">Waiting</span>
+            </div>
+            <div class="queue-metrics">
+              <div><span>Ticket</span><strong id="ticketNumber">A-105</strong></div>
+              <div><span>Position</span><strong id="queuePosition">3</strong></div>
+              <div><span>Wait</span><strong id="queueWait">15 min</strong></div>
+            </div>
+            <div class="progress-wrap">
+              <div class="progress-copy"><span>Queue progress</span><span id="progressText">2 patients ahead</span></div>
+              <div class="progress"><div class="progress-bar" id="progressBar"></div></div>
+            </div>
+            <button class="btn btn-outline danger" id="leaveQueueBtn">Leave Queue</button>
+          </div>
+        </section>
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

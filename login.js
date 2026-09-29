@@ -9,11 +9,19 @@ if(!localStorage.getItem("users")){
         ],
         [
             "user1",
-        { email: "user1@example.com", password: "user1_123", role: "user" }
+            { email: "user1@example.com", password: "user1_123", role: "user" }
         ],
         [
             "user2",
             { email: "user2@example.com", password: "user2_123", role: "user" }
+        ],
+        [
+            "ArthurM",
+            {email: "ArthurMoore@example.com", password: "passWord123", role: "user"}
+        ],
+        [
+            "SophieS",
+            {email: "SophieStevens@example.com", password: "passWord123", role: "user"}
         ]
     ])
     // turns map into array to be stored as string

@@ -75,6 +75,7 @@ form.addEventListener("submit", (e) => {
             let [success, msg] = validateLogin(usernameInput.value, passwordInput.value)
             
             if(success){ // sends user to proper page
+                sessionStorage.setItem("currentUser", JSON.stringify(usernameInput.value))
                 window.location.href=msg
             } else{ // shows why user was unable to login
                 errors.push(msg)

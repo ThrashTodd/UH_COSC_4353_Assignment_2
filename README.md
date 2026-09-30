@@ -38,7 +38,7 @@ Repository for COSC4353 Assignment 2
    
    - Status updates (waiting, almost ready, served)
 
-  **History Screen**
+  **History Screen** : history.html
    
    - List of past queues joined
    

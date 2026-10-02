@@ -81,6 +81,7 @@ function getLoginErrors(username, password) {
     markIncorrect(usernameInput);
   }
 
+
   if (!password) {
     errors.push("Password is required");
     markIncorrect(passwordInput);
@@ -95,6 +96,11 @@ function getRegisterErrors(username, email, password, confirmPasswordValue) {
   if (!email.trim()) {
     errors.push("Email is required");
     markIncorrect(emailInput);
+  }
+
+  if(!(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email.trim()))) {
+    errors.push("Email not valid")
+    markIncorrect(emailInput)
   }
 
   if (password && password.length < 8) {

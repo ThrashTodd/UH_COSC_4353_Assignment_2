@@ -99,7 +99,7 @@ function protectAdminPage() {
   }
 
   if (adminUser.role !== "admin") {
-    window.location.href = "dashboard.html";
+    window.location.href = "user.html";
     return;
   }
 

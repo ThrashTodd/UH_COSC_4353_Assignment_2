@@ -5,7 +5,7 @@ const currentUser = currentUsername ? getUser(currentUsername) : null;
 if (!currentUser) {
   window.location.href = "index.html";
 } else if (currentUser.role === "admin") {
-  window.location.href = "admin-dashboard.html";
+  window.location.href = "admin.html";
 }
 
 function getInitials(name) {

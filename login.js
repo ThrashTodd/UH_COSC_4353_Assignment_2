@@ -2,7 +2,7 @@ const form = document.getElementById("form")
 const usernameInput = document.getElementById("usernameInput")
 const emailInput = document.getElementById("emailInput")
 const passwordInput = document.getElementById("passwordInput")
-const checkPasswordInput = document.getElementById("checkPasswordInput")
+const confirmPasswordInput = document.getElementById("confirmPassword")
 const errorMessage = document.getElementById("errorMessage")
 
 if (form) {
@@ -18,7 +18,7 @@ function handleFormSubmit(event) {
         usernameInput.value,
         emailInput.value,
         passwordInput.value,
-        checkPasswordInput.value
+        confirmPasswordInput.value
       )
     : getLoginErrors(usernameInput.value, passwordInput.value);
 
@@ -89,7 +89,7 @@ function getLoginErrors(username, password) {
   return errors;
 }
 
-function getRegisterErrors(username, email, password, checkPasswordInput) {
+function getRegisterErrors(username, email, password, confirmPasswordValue) {
   const errors = getLoginErrors(username, password);
 
   if (!email.trim()) {
@@ -102,10 +102,10 @@ function getRegisterErrors(username, email, password, checkPasswordInput) {
     markIncorrect(passwordInput);
   }
 
-  if (password !== checkPasswordInput) {
+  if (password !== confirmPasswordValue) {
     errors.push("Passwords don't match");
     markIncorrect(passwordInput);
-    markIncorrect(checkPasswordInput);
+    markIncorrect(confirmPasswordInput);
   }
 
   return errors;
@@ -127,7 +127,7 @@ const allInputs = [
   usernameInput,
   emailInput,
   passwordInput,
-  checkPasswordInput
+  confirmPasswordInput
 ].filter(Boolean);
 
 allInputs.forEach((input) => {

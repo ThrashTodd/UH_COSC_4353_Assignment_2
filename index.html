@@ -1,33 +1,61 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login_Screen</title>
-    <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Queue Smart | Login</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="style.css" />
+    <script src="userDatabase.js" defer></script>
     <script src="login.js" defer></script>
 </head>
-<body>
-
+<body class = "auth-page">
     <header class="banner">
-        <h1>QueueSense</h1>
+        <h1>QueueSmart</h1>
     </header>
-    <div class="wrapper">
-        <p id="errorMessage"></p>
-        <form class="form" id="form">
-            <div>
-                <label for="username">
-                <input type="username" name="usernameInput" id="usernameInput" placeholder="Username">
-            </div>
-            <div>
-                <label for="password">
-                <input type="password" name="passwordInput" id="passwordInput" placeholder="Password">
-            </div>
-            <button type="submit">Log in</button>
-        </form>
-        <p>Don't have an account? <a href="register.html">Sign up</a> here.</p>
-        <p>Temp Link: <a href="user.html">user</a>, <a href="admin.html">admin</a>.</p>
-        <button id="roleSwitch">Change admin1 role</button>
-    </div>
+
+  <main class="wrapper">
+    <section class="auth-card">
+      <div class="auth-heading">
+        <p class="eyebrow">Patient & Staff Portal</p>
+        <h2>Welcome back</h2>
+        <p>Please sign in to manage your queue and appointments.</p>
+      </div>
+
+      <p id="errorMessage" class="error-message" role="alert"></p>
+
+      <form class="form" id="form" novalidate>
+        <div>
+          <label for="usernameInput">Username</label>
+          <input
+            type="text"
+            name="usernameInput"
+            id="usernameInput"
+            placeholder="Enter username"
+            autocomplete="username"
+          />
+        </div>
+
+        <div>
+          <label for="passwordInput">Password</label>
+          <input
+            type="password"
+            name="passwordInput"
+            id="passwordInput"
+            placeholder="Enter password"
+            autocomplete="current-password"
+          />
+        </div>
+
+        <button class="btn btn-primary full" type="submit">Log in</button>
+      </form>
+
+      <p class="form-signup">
+        Don't have an account? <a href="register.html">Sign up here</a>.
+      </p>
+    </section>
+  </main>
 </body>
 </html>

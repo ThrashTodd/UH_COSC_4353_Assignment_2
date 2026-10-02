@@ -1,7 +1,3 @@
-const currentUser = JSON.parse(sessionStorage.getItem("currentUser"));
-document.getElementById("username").textContent = currentUser
-
-
 const userDB = new Map([
     // map of users for const lookup
     // username : email, password, role
@@ -10,6 +6,7 @@ const userDB = new Map([
         "admin1",
         { 
             email: "admin@example.com", 
+            password: "admin123",
             role: "admin",
             history: []
         }
@@ -18,6 +15,7 @@ const userDB = new Map([
         "user1",
         { 
             email: "user1@example.com", 
+            password: "user1_123",
             role: "user",
             history: [
                 {ticket: 362, service: "Dental Cleaning", wait: 30, status: "complete"},
@@ -32,6 +30,7 @@ const userDB = new Map([
         "user2",
         { 
             email: "user2@example.com", 
+            password: "user2_123",
             role: "user",
             history: [
                 {ticket: 453, service: "Emergency Care", wait: 15, status: "complete"},
@@ -46,6 +45,7 @@ const userDB = new Map([
         "ArthurM",
         { 
             email: "ArthurMoore@example.com", 
+            password: "passWord123",
             role: "user",
             history: [
                 {ticket: 362, service: "Dental Cleaning", wait: 30, status: "complete"},
@@ -60,6 +60,7 @@ const userDB = new Map([
         "SophieS",
         { 
             email: "SophieStevens@example.com", 
+            password: "passWord123",
             role: "user",
             history: [
                 {ticket: 453, service: "Emergency Care", wait: 15, status: "complete"},
@@ -72,48 +73,72 @@ const userDB = new Map([
     ]
 ])
 
-/* Outline of the data base, bad syntax
-const usersDB = [   list
-    {
-        user: "user1",
-        currQueue: []
-    },
-    {
-        email: "user2",
-
-    }
-]
-
-const sevicesDB = [ list
-    {
-        {
-            service: cleaning,
-            wait: 20 min
-        }
-
-    }
-]
-
-queues [    list of prioqueues
-
-    {
-        doc1: 
-
-        doc2:
-
-    }
-]
-
-serviceObj {    # object
-    user = user1
-    service = "cleaning"
-    Date = "10/2/22"
-    doctors = doctor3
+function initializeUserDatabase() {
+  if (!localStorage.getItem("users")) {
+    localStorage.setItem("users", JSON.stringify([...userDB]));
+  }
 }
 
-database dict  #dictionary for lookup
-{
-    key=user : serviceObj
+function getUsersMap() {
+  initializeUserDatabase();
+  return new Map(JSON.parse(localStorage.getItem("users")));
 }
 
-*/
+function saveUsersMap(usersMap) {
+  localStorage.setItem("users", JSON.stringify([...usersMap]));
+}
+
+function getUser(username) {
+  return getUsersMap().get(username) || null;
+}
+
+function addNewUser(username, email, password, role = "user") {
+  const users = getUsersMap();
+
+  if (users.has(username)) {
+    return false;
+  }
+
+  users.set(username, {
+    email,
+    password,
+    role,
+    history: []
+  });
+
+  saveUsersMap(users);
+  return true;
+}
+
+function setCurrentUser(username) {
+  sessionStorage.setItem("currentUser", JSON.stringify(username));
+}
+
+function getCurrentUsername() {
+  return JSON.parse(sessionStorage.getItem("currentUser"));
+}
+
+function getCurrentUser() {
+  const username = getCurrentUsername();
+  return username ? getUser(username) : null;
+}
+
+function clearCurrentUser() {
+  sessionStorage.removeItem("currentUser");
+}
+
+function changeRole(username) {
+  const users = getUsersMap();
+  const user = users.get(username);
+
+  if (!user) {
+    return false;
+  }
+
+  user.role = user.role === "admin" ? "user" : "admin";
+  users.set(username, user);
+  saveUsersMap(users);
+  return true;
+}
+
+initializeUserDatabase();

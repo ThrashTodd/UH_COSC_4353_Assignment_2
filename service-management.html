@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QueueSmart | Service Management</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <script src="userDatabase.js" defer></script>
+  <script src="admin.js" defer></script>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">
+        <div class="brand-mark">Q</div>
+        <div>
+          <h1>QueueSmart</h1>
+          <p>Administrator</p>
+        </div>
+      </div>
+
+      <nav class="nav-menu">
+        <a class="nav-link" href="admin-dashboard.html">Dashboard</a>
+        <a class="nav-link active" href="service-management.html">Service Management</a>
+        <a class="nav-link" href="queue-management.html">Queue Management</a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <button class="nav-link logout-link" id="logoutBtn" type="button">Log out</button>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <button class="menu-btn" id="menuBtn" aria-label="Open menu">Menu</button>
+        <div>
+          <p class="eyebrow">Administrator Portal</p>
+          <h2>Service Management</h2>
+        </div>
+        <div class="profile">
+          <div class="avatar">AD</div>
+          <div class="profile-copy">
+            <strong id="adminUsername">Administrator</strong>
+            <span>Admin</span>
+          </div>
+        </div>
+      </header>
+
+      <section class="admin-page-heading">
+        <div>
+          <p class="eyebrow">Services</p>
+          <h3>Create or Edit Services</h3>
+          <p>Configure the services that users can select when joining a queue.</p>
+        </div>
+      </section>
+
+      <section class="admin-two-column">
+        <div class="panel">
+          <div class="panel-header">
+            <div>
+              <p class="eyebrow">Service Form</p>
+              <h3 id="serviceFormTitle">Add Service</h3>
+            </div>
+          </div>
+
+          <form class="admin-form" id="serviceForm">
+            <input type="hidden" id="serviceId" />
+
+            <div class="form-group">
+              <label for="serviceName">Service Name</label>
+              <input id="serviceName" type="text" maxlength="100" required />
+              <small>Required. Maximum 100 characters.</small>
+            </div>
+
+            <div class="form-group">
+              <label for="serviceDescription">Description</label>
+              <textarea id="serviceDescription" rows="4" required></textarea>
+            </div>
+
+            <div class="form-group">
+              <label for="serviceDuration">Expected Duration (minutes)</label>
+              <input id="serviceDuration" type="number" min="1" required />
+            </div>
+
+            <div class="form-group">
+              <label for="servicePriority">Priority Level</label>
+              <select id="servicePriority" required>
+                <option value="low">Low</option>
+                <option value="medium">Medium</option>
+                <option value="high">High</option>
+              </select>
+            </div>
+
+            <p class="form-feedback hidden" id="serviceFormMessage" role="alert"></p>
+
+            <div class="form-actions">
+              <button class="btn btn-primary" type="submit">Save Service</button>
+              <button class="btn btn-ghost hidden" id="cancelEditBtn" type="button">Cancel Edit</button>
+            </div>
+          </form>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">
+            <div>
+              <p class="eyebrow">Existing Services</p>
+              <h3>Service List</h3>
+            </div>
+          </div>
+
+          <div class="admin-table-wrap">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Service</th>
+                  <th>Duration</th>
+                  <th>Priority</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="serviceTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

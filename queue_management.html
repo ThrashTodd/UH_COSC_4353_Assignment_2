@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QueueSmart | Queue Management</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <script src="userDatabase.js" defer></script>
+  <script src="admin.js" defer></script>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">
+        <div class="brand-mark">Q</div>
+        <div>
+          <h1>QueueSmart</h1>
+          <p>Administrator</p>
+        </div>
+      </div>
+
+      <nav class="nav-menu">
+        <a class="nav-link" href="admin-dashboard.html">Dashboard</a>
+        <a class="nav-link" href="service-management.html">Service Management</a>
+        <a class="nav-link active" href="queue-management.html">Queue Management</a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <button class="nav-link logout-link" id="logoutBtn" type="button">Log out</button>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <button class="menu-btn" id="menuBtn" aria-label="Open menu">Menu</button>
+        <div>
+          <p class="eyebrow">Administrator Portal</p>
+          <h2>Queue Management</h2>
+        </div>
+        <div class="profile">
+          <div class="avatar">AD</div>
+          <div class="profile-copy">
+            <strong id="adminUsername">Administrator</strong>
+            <span>Admin</span>
+          </div>
+        </div>
+      </header>
+
+      <section class="admin-page-heading queue-heading-row">
+        <div>
+          <p class="eyebrow">Queue Control</p>
+          <h3>Manage Waiting Users</h3>
+          <p>Select a service to reorder, remove, or serve users in that queue.</p>
+        </div>
+
+        <div class="queue-service-picker">
+          <label for="queueServiceSelect">Service</label>
+          <select id="queueServiceSelect"></select>
+        </div>
+      </section>
+
+      <section class="stats-grid admin-stats-grid queue-stats">
+        <article class="stat-card">
+          <span>Selected Service</span>
+          <strong id="selectedServiceStat">—</strong>
+        </article>
+        <article class="stat-card">
+          <span>Waiting Users</span>
+          <strong id="selectedQueueLengthStat">0</strong>
+        </article>
+        <article class="stat-card">
+          <span>Expected Duration</span>
+          <strong id="selectedDurationStat">—</strong>
+        </article>
+        <article class="stat-card">
+          <span>Queue Status</span>
+          <strong id="selectedQueueStatusStat">—</strong>
+        </article>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header queue-panel-header">
+          <div>
+            <p class="eyebrow">Waiting List</p>
+            <h3 id="queueListTitle">Queue</h3>
+          </div>
+          <div class="queue-actions">
+            <button class="btn btn-outline" id="toggleSelectedQueueBtn" type="button">Close Queue</button>
+            <button class="btn btn-primary" id="serveNextBtn" type="button">Serve Next User</button>
+          </div>
+        </div>
+
+        <p class="form-feedback hidden" id="queueMessage" role="status"></p>
+
+        <div class="queue-admin-list" id="queueList"></div>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

@@ -1,0 +1,108 @@
+<!-- This will be the HTML for the user joining queue page -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QueueSmart | Join Queue</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">
+        <div class="brand-mark">Q</div>
+        <div><h1>QueueSmart</h1><p>Dental Clinic</p></div>
+      </div>
+      <nav class="nav-menu">
+        <a class="nav-link" href="dashboard.html">Dashboard</a>
+        <a class="nav-link active" href="join-queue.html">Join Queue</a>
+        <a class="nav-link" href="dashboard.html#current-queue">My Queue</a>
+        <a class="nav-link" href="dashboard.html#history">History</a>
+      </nav>
+      <button class="nav-link logout-link" id="logoutBtn" type="button">Log out</button>
+      <div class="sidebar-footer"><div class="help-card"><strong>Queue tip</strong><p>Choose the service you need. QueueSmart will estimate your wait automatically.</p></div></div>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <button class="menu-btn" id="menuBtn" aria-label="Open menu">Menu</button>
+        <div><p class="eyebrow">Patient Portal</p><h2>Join a Queue</h2></div>
+        <div class="profile"><div class="avatar" data-current-initials>US</div><div class="profile-copy"><strong data-current-username>User</strong><span>Patient</span></div></div>
+      </header>
+
+      <section class="page-intro">
+        <div>
+          <p class="eyebrow">Select a service</p>
+          <h3>What can we help you with today?</h3>
+          <p>Choose one dental service below. Review the live queue estimate before confirming.</p>
+        </div>
+      </section>
+
+      <section class="join-layout">
+        <div class="panel">
+          <div class="panel-header"><div><p class="eyebrow">Step 1</p><h3>Available Services</h3></div></div>
+          <div class="service-select-list" id="serviceList">
+            <button class="select-service" data-service="General Examination" data-wait="20" data-people="4" data-doctor="Dr. Patel">
+              <div class="service-copy"><strong>General Examination</strong><span>Routine dental examination and consultation</span></div>
+              <div class="service-wait"><strong>~20 min</strong><span>4 waiting</span></div>
+            </button>
+            <button class="select-service" data-service="Dental Cleaning" data-wait="15" data-people="3" data-doctor="Dr. Nguyen">
+              <div class="service-copy"><strong>Dental Cleaning</strong><span>Professional cleaning, scaling, and polishing</span></div>
+              <div class="service-wait"><strong>~15 min</strong><span>3 waiting</span></div>
+            </button>
+            <button class="select-service" data-service="Emergency Care" data-wait="8" data-people="1" data-doctor="Dr. Carter">
+              <div class="service-copy"><strong>Emergency Care</strong><span>Urgent care for pain, swelling, or dental injury</span></div>
+              <div class="service-wait"><strong>~8 min</strong><span>1 waiting</span></div>
+            </button>
+            <button class="select-service" data-service="Orthodontic Consultation" data-wait="30" data-people="5" data-doctor="Dr. Lee">
+              <div class="service-copy"><strong>Orthodontic Consultation</strong><span>Braces, aligners, and bite alignment consultation</span></div>
+              <div class="service-wait"><strong>~30 min</strong><span>5 waiting</span></div>
+            </button>
+          </div>
+        </div>
+
+        <aside class="panel summary-card">
+          <div class="panel-header"><div><p class="eyebrow">Step 2</p><h3>Queue Summary</h3></div></div>
+          <div id="summaryEmpty" class="summary-empty"><h4>Select a service</h4><p>Your queue details will appear here.</p></div>
+          <div id="summaryDetails" class="hidden">
+            <div class="summary-service"><span>Selected service</span><strong id="summaryService">—</strong></div>
+            <div class="summary-row"><span>Provider</span><strong id="summaryDoctor">—</strong></div>
+            <div class="summary-row"><span>People waiting</span><strong id="summaryPeople">—</strong></div>
+            <div class="summary-row"><span>Estimated wait</span><strong id="summaryWait">—</strong></div>
+            <div class="summary-row"><span>Queue type</span><strong>FIFO</strong></div>
+            <div class="info-box"><strong>Before you join</strong><p>Your estimated time may change as staff update the queue. Keep this page open or check your dashboard.</p></div>
+            <button class="btn btn-primary full" id="joinQueueBtn">Confirm & Join Queue</button>
+            <button class="btn btn-ghost full" id="cancelSelectionBtn">Clear Selection</button>
+          </div>
+        </aside>
+      </section>
+
+      <div class="join-message hidden" id="joinMessage" role="alert"></div>
+    </main>
+  </div>
+
+  <div class="modal-backdrop hidden" id="successModal">
+    <section class="success-modal" role="dialog" aria-modal="true" aria-labelledby="successTitle" aria-describedby="successDescription">
+      <p class="eyebrow">You're in the queue</p>
+      <h3 id="successTitle">Queue joined successfully</h3>
+      <p id="successDescription">Your place has been saved. Keep an eye on your dashboard for updates.</p>
+      <div class="confirmation-service" id="confirmationService"></div>
+      <div class="confirmation-grid">
+        <div><span>Ticket number</span><strong id="confirmationTicket"></strong></div>
+        <div><span>Your position</span><strong id="confirmationPosition"></strong></div>
+        <div><span>Estimated wait</span><strong id="confirmationWait"></strong></div>
+      </div>
+      <p class="estimate-note">Wait times are estimates and may change as the queue moves.</p>
+      <a class="btn btn-primary full" href="dashboard.html#current-queue">View My Queue</a>
+      <button class="btn btn-ghost full" id="closeModalBtn" type="button">Stay on this page</button>
+    </section>
+  </div>
+
+  <script src="userDatabase.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

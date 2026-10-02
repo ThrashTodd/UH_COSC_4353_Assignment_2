@@ -9,19 +9,25 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css" />
   <link rel="stylesheet" href="queue_status_screen.css" />
+  <script src="userDatabase.js" defer></script>
+  <script src="patientData.js" defer></script>
+  <script src="app.js" defer></script>
+  <script src="patient-pages.js" defer></script>
+  <script src="queue_status_screen.js" defer></script>
 </head>
 <body>
   <div class="app-shell">
     <aside class="sidebar" id="sidebar">
-      <div class="brand">
+      <div class="brand"><div class="brand-mark">Q</div>
         <div><h1>QueueSmart</h1><p>Dental Clinic</p></div>
       </div>
       <nav class="nav-menu">
-        <a class="nav-link" href="dashboard.html">Dashboard</a>
+        <a class="nav-link" href="user.html">Dashboard</a>
         <a class="nav-link" href="join-queue.html">Join Queue</a>
         <a class="nav-link active" href="queue_status_screen.html">My Queue</a>
-        <a class="nav-link" href="dashboard.html#history">History</a>
+        <a class="nav-link" href="history.html">History</a>
       </nav>
+      <button class="nav-link logout-link" id="logoutBtn" type="button">Log out</button>
       <div class="sidebar-footer"><div class="help-card"><strong>Need help?</strong><p>Ask the front desk if you need help with your queue.</p></div></div>
     </aside>
 
@@ -29,28 +35,28 @@
       <header class="topbar">
         <button class="menu-btn" id="menuBtn" aria-label="Open menu">Menu</button>
         <div><p class="eyebrow">Patient Portal</p><h2>My Queue</h2></div>
-        <div class="profile"><div class="avatar">SO</div><div class="profile-copy"><strong>sara</strong><span>Patient</span></div></div>
+        <div class="profile"><div class="avatar" data-current-initials>—</div><div class="profile-copy"><strong data-current-username>—</strong><span>Patient</span></div></div>
       </header>
 
-      <div id="activeView">
+      <div id="activeView" class="hidden">
         <section class="hero-card" id="hero">
           <div>
             <p class="eyebrow light" id="heroEyebrow">You're in line</p>
-            <h3 id="heroTitle">Dental Cleaning with Dr. Asefa</h3>
+            <h3 id="heroTitle">—</h3>
             <p id="heroMessage">We'll notify you here when it's almost your turn. Feel free to relax in the waiting area.</p>
           </div>
           <div class="ticket-card">
             <span>Ticket</span>
-            <strong id="ticketNumber">C-318</strong>
-            <small id="ticketRoom">Room 3</small>
+            <strong id="ticketNumber">—</strong>
+            <small id="ticketRoom">—</small>
           </div>
         </section>
 
         <section class="stats-grid">
-          <article class="stat-card"><div><span>Your Position</span><strong id="statPosition">#4</strong></div></article>
-          <article class="stat-card"><div><span>Estimated Wait</span><strong id="statWait">~15 min</strong></div></article>
-          <article class="stat-card"><div><span>People Ahead</span><strong id="statAhead">3</strong></div></article>
-          <article class="stat-card"><div><span>Checked In</span><strong id="statCheckedIn">1:05 PM</strong></div></article>
+          <article class="stat-card"><div><span>Your Position</span><strong id="statPosition">—</strong></div></article>
+          <article class="stat-card"><div><span>Estimated Wait</span><strong id="statWait">—</strong></div></article>
+          <article class="stat-card"><div><span>People Ahead</span><strong id="statAhead">—</strong></div></article>
+          <article class="stat-card"><div><span>Checked In</span><strong id="statCheckedIn">—</strong></div></article>
         </section>
 
         <section class="content-grid">
@@ -68,39 +74,35 @@
               <li><span class="step-dot"></span>Served</li>
             </ol>
 
-            <div class="progress-copy"><span id="lineTitle">Dr. Asefa's queue</span><span id="lineCount">6 in queue</span></div>
+            <div class="progress-copy"><span id="lineTitle">—</span><span id="lineCount">—</span></div>
             <div class="queue-line" id="lineViz">
-              <div class="person serving" title="Being served">●</div>
-              <div class="person" title="Ahead of you">#1</div>
-              <div class="person" title="Ahead of you">#2</div>
-              <div class="person" title="Ahead of you">#3</div>
-              <div class="person you" title="You">You</div>
-              <div class="person behind" title="Behind you"></div>
             </div>
             <div class="line-legend">
               <span><i class="legend-dot serving"></i>Being served</span>
               <span><i class="legend-dot ahead"></i>Ahead of you</span>
               <span><i class="legend-dot you"></i>You</span>
-              <span><i class="legend-dot behind"></i>Behind you</span>
+              
             </div>
 
-            <div class="progress-copy"><span>Progress to your turn</span><span id="progressPct">20%</span></div>
-            <div class="progress"><div class="progress-bar" id="progressBar" style="width: 20%"></div></div>
+            <div class="progress-copy"><span>Queue stage</span><span id="progressPct">—</span></div>
+            <div class="progress"><div class="progress-bar" id="progressBar" style="width: 0%"></div></div>
 
+            <p class="estimate-note">Front-end demo: Refresh reloads saved data. Advance demo queue simulates a position or service-status change.</p>
             <div class="queue-actions">
               <button class="btn btn-outline" id="refreshBtn">Refresh</button>
+              <button class="btn btn-outline" id="advanceDemoBtn">Advance demo queue</button>
               <button class="btn btn-outline danger" id="leaveBtn">Leave Queue</button>
             </div>
           </div>
 
           <div class="side-stack">
             <div class="panel">
-              <div class="panel-header"><div><p class="eyebrow">Your visit</p><h3>Appointment Details</h3></div></div>
-              <div class="summary-row"><span>Service</span><strong id="dService">Dental Cleaning</strong></div>
-              <div class="summary-row"><span>Provider</span><strong id="dDoctor">Dr. Asefa</strong></div>
-              <div class="summary-row"><span>Room</span><strong id="dRoom">Room 3</strong></div>
-              <div class="summary-row"><span>Time per patient</span><strong id="dAvg">5 min</strong></div>
-              <div class="summary-row"><span>Joined queue</span><strong id="dJoined">1:05 PM</strong></div>
+              <div class="panel-header"><div><p class="eyebrow">Your visit</p><h3>Queue Details</h3></div></div>
+              <div class="summary-row"><span>Service</span><strong id="dService">—</strong></div>
+              <div class="summary-row"><span>Provider</span><strong id="dDoctor">—</strong></div>
+              <div class="summary-row"><span>Room</span><strong id="dRoom">—</strong></div>
+              <div class="summary-row"><span>Time per patient</span><strong id="dAvg">—</strong></div>
+              <div class="summary-row"><span>Joined queue</span><strong id="dJoined">—</strong></div>
             </div>
 
             <div class="panel">
@@ -108,16 +110,7 @@
                 <div><p class="eyebrow">Today</p><h3>Status Updates</h3></div>
                 <button class="link-btn" id="markReadBtn">Mark all read</button>
               </div>
-              <div class="notification-list" id="notifList">
-                <div class="notification unread">
-                  <div class="notif-dot"></div>
-                  <div>
-                    <strong>You joined a queue</strong>
-                    <p>Dental Cleaning · Ticket C-318 · Position #4 · Estimated wait 15 min</p>
-                    <span>1:05 PM</span>
-                  </div>
-                </div>
-              </div>
+              <div class="notification-list" id="notifList" aria-live="polite"></div>
             </div>
           </div>
         </section>
@@ -133,7 +126,7 @@
           <p>Choose a dental service and join a queue to get your ticket number and wait time.</p>
           <div class="queue-actions center">
             <a class="btn btn-primary" href="join-queue.html">Browse Services</a>
-            <button class="btn btn-outline" id="sampleBtn">Try a sample queue</button>
+            <a class="btn btn-outline" href="history.html">View history</a>
           </div>
         </div>
       </section>
@@ -144,7 +137,7 @@
     <section class="success-modal" role="dialog" aria-modal="true" aria-labelledby="leaveTitle">
       <p class="eyebrow">Leave queue</p>
       <h3 id="leaveTitle">Are you sure?</h3>
-      <p>You'll lose your spot (<strong id="modalTicket">C-318</strong>). If you join again you'll be placed at the end of the line.</p>
+      <p>You'll lose your spot (<strong id="modalTicket">—</strong>). If you join again you'll be placed at the end of the line.</p>
       <div class="modal-actions">
         <button class="btn btn-primary full" id="cancelLeave" type="button">Stay in queue</button>
         <button class="btn btn-outline danger full" id="confirmLeave" type="button">Leave queue</button>
@@ -153,8 +146,5 @@
   </div>
 
   <div class="toast hidden" id="toast"><strong id="toastTitle"></strong><span id="toastText"></span></div>
-
-  <script src="app.js"></script>
-  <script src="queue_status_screen.js"></script>
 </body>
 </html>

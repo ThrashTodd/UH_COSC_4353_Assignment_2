@@ -8,8 +8,10 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
-    <script src="userDatabase.js" defer></script>
-    <script src="app.js" defer></script>
+  <script src="userDatabase.js" defer></script>
+  <script src="patientData.js" defer></script>
+  <script src="app.js" defer></script>
+  <script src="patient-pages.js" defer></script>
 </head>
 
 <body>
@@ -26,8 +28,8 @@
       <nav class="nav-menu">
         <a class="nav-link active" href="user.html">Dashboard</a>
         <a class="nav-link" href="join-queue.html">Join Queue</a>
-        <a class="nav-link" href="#current-queue">My Queue</a>
-        <a class="nav-link" href="#history">History</a>
+        <a class="nav-link" href="queue_status_screen.html">My Queue</a>
+        <a class="nav-link" href="history.html">History</a>
       </nav>
 
       <button class="nav-link logout-link" id="logoutBtn" type="button">Log out</button>
@@ -87,7 +89,7 @@
         <article class="stat-card">
           <div>
             <span>Visits This Month</span>
-            <strong>2</strong>
+            <strong id="visitsThisMonth">0</strong>
           </div>
         </article>
       </section>
@@ -125,6 +127,7 @@
               <div class="progress-copy"><span>Queue progress</span><span id="progressText">2 patients ahead</span></div>
               <div class="progress"><div class="progress-bar" id="progressBar"></div></div>
             </div>
+            <a class="btn btn-primary" href="queue_status_screen.html">View queue status</a>
             <button class="btn btn-outline danger" id="leaveQueueBtn">Leave Queue</button>
           </div>
         </div>
@@ -193,15 +196,14 @@
           <div>
             <p class="eyebrow">Previous visits</p>
             <h3>Recent History</h3>
+            <a class="link-btn" href="history.html">View all history</a>
           </div>
         </div>
+        <p class="history-note">Older database records may not include dates or physician names. Those fields are shown as “Not recorded”.</p>
         <div class="table-wrap">
           <table>
-            <thead><tr><th>Date</th><th>Service</th><th>Ticket</th><th>Wait</th><th>Status</th></tr></thead>
-            <tbody>
-              <tr><td>Sep 26, 2026</td><td>Dental Cleaning</td><td>C-214</td><td>12 min</td><td><span class="badge success">Completed</span></td></tr>
-              <tr><td>Sep 11, 2026</td><td>General Examination</td><td>A-189</td><td>18 min</td><td><span class="badge success">Completed</span></td></tr>
-            </tbody>
+            <thead><tr><th>Date</th><th>Service</th><th>Ticket</th><th>Saved wait</th><th>Status</th></tr></thead>
+            <tbody id="historyTableBody" data-columns="5" data-limit="5"></tbody>
           </table>
         </div>
       </section>

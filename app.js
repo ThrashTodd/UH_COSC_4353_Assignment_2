@@ -1,11 +1,14 @@
+(function () {
 // Authentication / current user management
 const currentUsername = getCurrentUsername();
 const currentUser = currentUsername ? getUser(currentUsername) : null;
 
 if (!currentUser) {
   window.location.href = "index.html";
+  return;
 } else if (currentUser.role === "admin") {
   window.location.href = "admin.html";
+  return;
 }
 
 function getInitials(name) {
@@ -43,93 +46,9 @@ if (menuBtn && sidebar) {
   });
 }
 
-// Give each signed-in user a separate saved queue.
-const stateKey = `queuesmartQueue:${currentUsername}`;
-
-function getQueue() {
-  try {
-    return JSON.parse(localStorage.getItem(stateKey));
-  } catch {
-    return null;
-  }
-}
-
-function saveQueue(queue) {
-  localStorage.setItem(stateKey, JSON.stringify(queue));
-}
-
-function clearQueue() {
-  localStorage.removeItem(stateKey);
-}
-
-// Dashboard behavior
-const currentQueueStat = document.getElementById("currentQueueStat");
-
-if (currentQueueStat) {
-  const queue = getQueue();
-  const empty = document.getElementById("emptyQueueState");
-  const active = document.getElementById("activeQueueState");
-  const badge = document.getElementById("queueBadge");
-  const waitStat = document.getElementById("waitStat");
-  const positionStat = document.getElementById("positionStat");
-
-  if (queue) {
-    currentQueueStat.textContent = queue.service;
-    waitStat.textContent = `${queue.wait} min`;
-    positionStat.textContent = `#${queue.position}`;
-
-    empty.classList.add("hidden");
-    active.classList.remove("hidden");
-    badge.textContent = "Active";
-    badge.className = "badge success";
-
-    document.getElementById("activeService").textContent = queue.service;
-    document.getElementById("ticketNumber").textContent = queue.ticket;
-    document.getElementById("queuePosition").textContent = queue.position;
-    document.getElementById("queueWait").textContent = `${queue.wait} min`;
-    document.getElementById("progressText").textContent =
-      `${Math.max(queue.position - 1, 0)} patients ahead`;
-    document.getElementById("progressBar").style.width =
-      `${Math.max(20, 100 - queue.position * 12)}%`;
-
-    const notificationList = document.getElementById("notificationList");
-
-    if (notificationList) {
-      const notice = document.createElement("div");
-      notice.className = "notification unread";
-      notice.innerHTML = `
-        <div class="notif-dot"></div>
-        <div>
-          <strong>You joined a queue</strong>
-          <p>${queue.service} · Ticket ${queue.ticket} · Position #${queue.position} · Estimated wait ${queue.wait} min</p>
-          <span>${new Date(queue.joinedAt).toLocaleString()}</span>
-        </div>
-      `;
-      notificationList.prepend(notice);
-    }
-  }
-
-  const leaveBtn = document.getElementById("leaveQueueBtn");
-
-  if (leaveBtn) {
-    leaveBtn.addEventListener("click", () => {
-      if (confirm("Are you sure you want to leave this queue?")) {
-        clearQueue();
-        location.reload();
-      }
-    });
-  }
-
-  const markReadBtn = document.getElementById("markReadBtn");
-
-  if (markReadBtn) {
-    markReadBtn.addEventListener("click", () => {
-      document
-        .querySelectorAll(".notification")
-        .forEach((notification) => notification.classList.remove("unread"));
-    });
-  }
-}
+// Shared patient data; the dashboard, history and status page use the same key.
+function getQueue() { return PatientData.queue(); }
+function saveQueue(queue) { PatientData.save(queue); }
 
 // Join Queue behavior
 const serviceButtons = document.querySelectorAll(".select-service");
@@ -221,13 +140,19 @@ if (serviceButtons.length) {
       const ticket = `${prefix}-${ticketNumber}`;
 
       const queue = {
+        id: crypto.randomUUID(),
+        status: "waiting",
         ...selectedService,
         position: selectedService.people + 1,
         ticket,
         joinedAt: new Date().toISOString()
       };
 
-      saveQueue(queue);
+      try { saveQueue(queue); } catch (error) {
+        joinMessage.textContent = error.message;
+        joinMessage.classList.remove("hidden");
+        return;
+      }
 
       document.getElementById("confirmationService").textContent = queue.service;
       document.getElementById("confirmationTicket").textContent = queue.ticket;
@@ -250,3 +175,5 @@ if (serviceButtons.length) {
     });
   }
 }
+
+})();

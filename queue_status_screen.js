@@ -1,383 +1,87 @@
-let queueKey = "queuesmartQueue"
-let myQueue = null
-let toastTimer = null
-let statusList = ["checked-in", "waiting", "almost-ready", "in-service", "served"]
-
-function timeText(date) {
-  return date.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })
-}
-
-function saveMyQueue() {
-  localStorage.setItem(queueKey, JSON.stringify(myQueue))
-}
-
-function loadMyQueue() {
-  let saved = localStorage.getItem(queueKey)
-
-  if (saved == null) {
-    myQueue = null
-    return
+(function () {
+  const username=getCurrentUsername(), user=username?getUser(username):null;
+  if(!user || user.role==='admin')return;
+  const $=id=>document.getElementById(id);
+  const text=(id,value)=>{if($(id))$(id).textContent=value;};
+  const statuses=['checked-in','waiting','almost-ready','in-service','served'];
+  let toastTimer;
+  function timeText(raw) {
+    if(!raw)return 'Not recorded';
+    const date=new Date(raw);return Number.isNaN(date.getTime())?raw:date.toLocaleTimeString([],{hour:'numeric',minute:'2-digit'});
   }
-
-  myQueue = JSON.parse(saved)
-
-  if (myQueue.status == undefined) {
-    myQueue.status = "waiting"
+  function toast(title,message){
+    text('toastTitle',title);text('toastText',message);$('toast').classList.remove('hidden');
+    clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('toast').classList.add('hidden'),3500);
   }
-  if (myQueue.room == undefined) {
-    myQueue.room = "Room 3"
-  }
-  if (myQueue.behind == undefined) {
-    myQueue.behind = 1
-  }
-  if (myQueue.startPosition == undefined) {
-    myQueue.startPosition = myQueue.position
-  }
-  if (myQueue.perPerson == undefined) {
-    if (myQueue.position > 1) {
-      myQueue.perPerson = Math.round(myQueue.wait / (myQueue.position - 1))
-    } else {
-      myQueue.perPerson = myQueue.wait
+  function closeLeave(){ $('leaveModal').classList.add('hidden');document.body.classList.remove('modal-open');$('leaveBtn').focus(); }
+  function person(type,label,title){const el=document.createElement('div');el.className=`person ${type}`;el.textContent=label;el.title=title;$('lineViz').append(el);}
+  function renderNotifications(q){
+    $('notifList').replaceChildren();
+    const records=q.notifications?.length?q.notifications:[{title:'You joined a queue',message:`${q.service} · Ticket ${q.ticket} · Estimated wait ${q.wait} min`,time:q.joinedAt,read:false}];
+    for(const n of records){
+      const box=document.createElement('div');box.className=`notification ${n.read?'':'unread'}`;
+      const dot=document.createElement('div');dot.className='notif-dot';box.append(dot);
+      const copy=document.createElement('div');
+      for(const [tag,value] of [['strong',n.title],['p',n.message],['span',timeText(n.time)]]){const el=document.createElement(tag);el.textContent=value || '';copy.append(el);}
+      box.append(copy);$('notifList').append(box);
     }
   }
-  if (myQueue.notifications == undefined) {
-    myQueue.notifications = []
-    addNotification("You joined a queue", myQueue.service + " · Ticket " + myQueue.ticket + " · Position #" + myQueue.position + " · Estimated wait " + myQueue.wait + " min")
-  }
-  if (myQueue.status == "waiting" && myQueue.position <= 2) {
-    myQueue.status = "almost-ready"
-  }
+  function render(){
+    let q;
+    try{q=PatientData.queue();}catch(error){toast('Unable to load queue',error.message);return;}
+    $('activeView').classList.toggle('hidden',!q);$('emptyView').classList.toggle('hidden',Boolean(q));
+    if(!q){$('leaveModal').classList.add('hidden');document.body.classList.remove('modal-open');return;}
+    const status=q.status || 'waiting';
+    const waiting=!['in-service','served'].includes(status);
+    const position=Math.max(1,Number(q.position)||1),ahead=waiting?position-1:0;
+    const wait=Math.max(0,Number(q.wait)||0);
+    const copy={waiting:["You're in line",'Your saved position and estimate are shown below.'],
+      'almost-ready':['Almost your turn','Please stay near the front desk.'],
+      'in-service':["It's your turn",q.room?`Please go to ${q.room}.`:'Please check with the front desk.'],
+      served:['Visit complete','Your completed visit has been saved to your history.'],
+      'checked-in':['Checked in','You have joined the queue.']};
+    const [title,message]=copy[status] || copy.waiting;
+    $('hero').className=`hero-card ${status}`;text('heroEyebrow',title);
+    text('heroTitle',q.doctor?`${q.service} with ${q.doctor}`:q.service);text('heroMessage',message);
+    text('ticketNumber',q.ticket);text('ticketRoom',q.room || 'Room not assigned');
+    text('statPosition',waiting?`#${position}`:'—');text('statAhead',ahead);
+    text('statWait',status==='served'?'Done':status==='in-service'?'Now':`~${wait} min`);
+    text('statCheckedIn',timeText(q.joinedAt));
+    text('statusBadge',PatientData.status(status));$('statusBadge').className=`badge ${status==='almost-ready'?'warning':status==='in-service'?'info':status==='served'?'neutral':'success'}`;
+    const stage=Math.max(0,statuses.indexOf(status));
+    document.querySelectorAll('#stepper li').forEach((el,index)=>{el.classList.toggle('done',index<stage || status==='served');el.classList.toggle('current',index===stage && status!=='served');});
+    $('lineViz').replaceChildren();
+    if(status==='served')$('lineViz').textContent='Your visit is complete.';
+    else {
 
-  saveMyQueue()
-}
-
-function addNotification(title, message) {
-  let newNotification = {
-    title: title,
-    message: message,
-    time: timeText(new Date()),
-    read: false
-  }
-  myQueue.notifications.unshift(newNotification)
-}
-
-function getWait() {
-  if (myQueue.status == "in-service" || myQueue.status == "served") {
-    return 0
-  }
-  return (myQueue.position - 1) * myQueue.perPerson
-}
-
-function waitText() {
-  let wait = getWait()
-  if (myQueue.status == "in-service") {
-    return "Now"
-  }
-  if (myQueue.status == "served") {
-    return "Done"
-  }
-  if (wait == 0) {
-    return "Next up"
-  }
-  return "~" + wait + " min"
-}
-
-function showToast(title, text) {
-  let toast = document.getElementById("toast")
-  document.getElementById("toastTitle").innerText = title
-  document.getElementById("toastText").innerText = text
-  toast.classList.remove("hidden")
-
-  clearTimeout(toastTimer)
-  toastTimer = setTimeout(function() {
-    toast.classList.add("hidden")
-  }, 3500)
-}
-
-function addPersonBox(line, type, label, hoverText) {
-  let box = document.createElement("div")
-  box.className = "person " + type
-  box.innerText = label
-  box.title = hoverText
-  line.appendChild(box)
-}
-
-function updatePage() {
-  if (myQueue == null) {
-    document.getElementById("activeView").classList.add("hidden")
-    document.getElementById("emptyView").classList.remove("hidden")
-    return
-  }
-  document.getElementById("activeView").classList.remove("hidden")
-  document.getElementById("emptyView").classList.add("hidden")
-
-  let stillWaiting = false
-  if (myQueue.status == "waiting" || myQueue.status == "almost-ready") {
-    stillWaiting = true
-  }
-
-  let bannerTitle = ""
-  let bannerMessage = ""
-  let badgeText = ""
-  let badgeColor = ""
-
-  if (myQueue.status == "waiting") {
-    bannerTitle = "You're in line"
-    bannerMessage = "We'll notify you here when it's almost your turn. Feel free to relax in the waiting area."
-    badgeText = "Waiting"
-    badgeColor = "success"
-  } else if (myQueue.status == "almost-ready") {
-    bannerTitle = "Almost your turn"
-    bannerMessage = "Please stay close to the front desk. You'll be called in shortly."
-    badgeText = "Almost ready"
-    badgeColor = "warning"
-  } else if (myQueue.status == "in-service") {
-    bannerTitle = "It's your turn"
-    bannerMessage = "Please head to " + myQueue.room + " now. Your service is in progress."
-    badgeText = "In service"
-    badgeColor = "info"
-  } else {
-    bannerTitle = "Visit complete"
-    bannerMessage = "Your visit is complete. Thanks for using QueueSmart!"
-    badgeText = "Served"
-    badgeColor = "neutral"
-  }
-
-  document.getElementById("hero").className = "hero-card " + myQueue.status
-  document.getElementById("heroEyebrow").innerText = bannerTitle
-  document.getElementById("heroTitle").innerText = myQueue.service + " with " + myQueue.doctor
-  document.getElementById("heroMessage").innerText = bannerMessage
-  document.getElementById("ticketNumber").innerText = myQueue.ticket
-  document.getElementById("ticketRoom").innerText = myQueue.room
-
-  let joinedTime = timeText(new Date(myQueue.joinedAt))
-
-  if (stillWaiting) {
-    document.getElementById("statPosition").innerText = "#" + myQueue.position
-    document.getElementById("statAhead").innerText = myQueue.position - 1
-  } else {
-    document.getElementById("statPosition").innerText = "—"
-    document.getElementById("statAhead").innerText = 0
-  }
-  document.getElementById("statWait").innerText = waitText()
-  document.getElementById("statCheckedIn").innerText = joinedTime
-
-  let badge = document.getElementById("statusBadge")
-  badge.className = "badge " + badgeColor
-  badge.innerText = badgeText
-
-  let currentStep = statusList.indexOf(myQueue.status)
-  let stepItems = document.querySelectorAll("#stepper li")
-  for (let i = 0; i < stepItems.length; i++) {
-    stepItems[i].classList.remove("done")
-    stepItems[i].classList.remove("current")
-
-    if (i < currentStep) {
-      stepItems[i].classList.add("done")
-    } else if (i == currentStep) {
-      if (myQueue.status == "served") {
-        stepItems[i].classList.add("done")
-      } else {
-        stepItems[i].classList.add("current")
-      }
+      for(let i=1;i<=Math.min(ahead,30);i++)person('',`#${i}`,'Ahead of you');
+      if(ahead>30)person('',`+${ahead-30}`,'Additional patients ahead');
+      person(status==='in-service'?'serving':'you','You',status==='in-service'?'Being served':'Your position');
     }
+    text('lineTitle',`${q.service} queue`);text('lineCount',waiting?`${ahead} ahead of you`:PatientData.status(status));
+    const percent=stage*25; text('progressPct',`${percent}%`);$('progressBar').style.width=`${percent}%`;
+    text('dService',q.service);text('dDoctor',q.doctor || 'Not assigned');text('dRoom',q.room || 'Not assigned');
+    text('dAvg',Number.isFinite(q.perPerson)?`~${Math.round(q.perPerson*10)/10} min (estimated)`:'Not recorded');text('dJoined',timeText(q.joinedAt));
+    text('leaveBtn',status==='served'?'Close visit':'Leave Queue');text('modalTicket',q.ticket);
+    $('advanceDemoBtn').disabled=status==='served';
+    renderNotifications(q);
   }
-
-  let line = document.getElementById("lineViz")
-  line.innerHTML = ""
-  let peopleCount = 0
-
-  if (myQueue.status == "served") {
-    line.innerText = "Your visit is complete."
-  } else {
-    if (myQueue.status != "in-service") {
-      addPersonBox(line, "serving", "●", "Being served")
-      peopleCount++
-
-      for (let i = 1; i < myQueue.position; i++) {
-        addPersonBox(line, "", "#" + i, "Ahead of you")
-        peopleCount++
-      }
-    }
-
-    addPersonBox(line, "you", "You", "You")
-    peopleCount++
-
-    for (let i = 0; i < myQueue.behind; i++) {
-      addPersonBox(line, "behind", "", "Behind you")
-      peopleCount++
-    }
-  }
-  document.getElementById("lineTitle").innerText = myQueue.doctor + "'s queue"
-  document.getElementById("lineCount").innerText = peopleCount + " in queue"
-
-  let percent = 0
-  if (stillWaiting) {
-    percent = Math.round((myQueue.startPosition - myQueue.position + 1) / (myQueue.startPosition + 1) * 100)
-  } else {
-    percent = 100
-  }
-  let bar = document.getElementById("progressBar")
-  bar.style.width = percent + "%"
-  if (myQueue.status == "served") {
-    bar.style.background = "#334155"
-  } else if (myQueue.status == "in-service") {
-    bar.style.background = "#15803d"
-  } else {
-    bar.style.background = "#2563eb"
-  }
-  document.getElementById("progressPct").innerText = percent + "%"
-
-  document.getElementById("dService").innerText = myQueue.service
-  document.getElementById("dDoctor").innerText = myQueue.doctor
-  document.getElementById("dRoom").innerText = myQueue.room
-  document.getElementById("dAvg").innerText = myQueue.perPerson + " min"
-  document.getElementById("dJoined").innerText = joinedTime
-
-  document.getElementById("refreshBtn").disabled = (myQueue.status == "served")
-  if (myQueue.status == "served") {
-    document.getElementById("leaveBtn").innerText = "Close Visit"
-  } else {
-    document.getElementById("leaveBtn").innerText = "Leave Queue"
-  }
-  document.getElementById("modalTicket").innerText = myQueue.ticket
-
-  let notifList = document.getElementById("notifList")
-  notifList.innerHTML = ""
-  for (let i = 0; i < myQueue.notifications.length; i++) {
-    let notif = myQueue.notifications[i]
-
-    let box = document.createElement("div")
-    box.className = "notification"
-    if (notif.read == false) {
-      box.classList.add("unread")
-    }
-
-    let dot = document.createElement("div")
-    dot.className = "notif-dot"
-
-    let textBox = document.createElement("div")
-
-    let title = document.createElement("strong")
-    title.innerText = notif.title
-
-    let message = document.createElement("p")
-    message.innerText = notif.message
-
-    let time = document.createElement("span")
-    time.innerText = notif.time
-
-    textBox.appendChild(title)
-    textBox.appendChild(message)
-    textBox.appendChild(time)
-    box.appendChild(dot)
-    box.appendChild(textBox)
-    notifList.appendChild(box)
-  }
-}
-
-function refreshQueue() {
-  if (myQueue == null) {
-    return
-  }
-
-  if (myQueue.status == "waiting" || myQueue.status == "almost-ready") {
-    if (myQueue.position > 1) {
-      myQueue.position = myQueue.position - 1
-
-      if (Math.random() < 0.5) {
-        myQueue.behind = myQueue.behind + 1
-      }
-
-      if (myQueue.position <= 2 && myQueue.status == "waiting") {
-        myQueue.status = "almost-ready"
-        addNotification("Almost ready", "You're almost up. Estimated wait: " + waitText() + ". Please stay near the front desk.")
-        showToast("Almost your turn!", "Estimated wait: " + waitText())
-      } else {
-        addNotification("Queue update", "You moved up to position #" + myQueue.position + ". Estimated wait: " + waitText() + ".")
-        showToast("Queue updated", "You're now #" + myQueue.position)
-      }
-    } else {
-      myQueue.status = "in-service"
-      addNotification("Service in progress", myQueue.doctor + " is ready for you. Please go to " + myQueue.room + ".")
-      showToast("It's your turn!", "Please go to " + myQueue.room)
-    }
-  } else if (myQueue.status == "in-service") {
-    myQueue.status = "served"
-    addNotification("Service completed", "Your " + myQueue.service.toLowerCase() + " with " + myQueue.doctor + " is complete. Thanks for visiting!")
-    showToast("Visit complete", "Thanks for visiting!")
-  }
-
-  saveMyQueue()
-  updatePage()
-}
-
-function openLeavePopup() {
-  if (myQueue.status == "served") {
-    leaveQueue()
-    return
-  }
-  document.getElementById("leaveModal").classList.remove("hidden")
-  document.body.classList.add("modal-open")
-}
-
-function closeLeavePopup() {
-  document.getElementById("leaveModal").classList.add("hidden")
-  document.body.classList.remove("modal-open")
-}
-
-function leaveQueue() {
-  let wasServed = (myQueue.status == "served")
-  closeLeavePopup()
-  localStorage.removeItem(queueKey)
-  myQueue = null
-  updatePage()
-
-  if (wasServed) {
-    showToast("Visit closed", "You can join a new queue anytime.")
-  } else {
-    showToast("You left the queue", "Your spot has been released.")
-  }
-}
-
-function markAllRead() {
-  if (myQueue == null) {
-    return
-  }
-  for (let i = 0; i < myQueue.notifications.length; i++) {
-    myQueue.notifications[i].read = true
-  }
-  saveMyQueue()
-  updatePage()
-}
-
-function startSampleQueue() {
-  myQueue = {
-    service: "Dental Cleaning",
-    doctor: "Dr. Asefa",
-    wait: 15,
-    people: 3,
-    position: 4,
-    ticket: "C-318",
-    joinedAt: new Date().toISOString()
-  }
-  saveMyQueue()
-  loadMyQueue()
-  updatePage()
-}
-
-document.getElementById("refreshBtn").addEventListener("click", refreshQueue)
-document.getElementById("leaveBtn").addEventListener("click", openLeavePopup)
-document.getElementById("cancelLeave").addEventListener("click", closeLeavePopup)
-document.getElementById("confirmLeave").addEventListener("click", leaveQueue)
-document.getElementById("markReadBtn").addEventListener("click", markAllRead)
-document.getElementById("sampleBtn").addEventListener("click", startSampleQueue)
-
-document.getElementById("leaveModal").addEventListener("click", function(e) {
-  if (e.target.id == "leaveModal") {
-    closeLeavePopup()
-  }
-})
-
-loadMyQueue()
-updatePage()
+  $('refreshBtn').addEventListener('click',()=>{render();toast('Queue refreshed','Loaded your latest saved queue.');});
+  $('advanceDemoBtn').addEventListener('click',()=>{try{PatientData.advance();}catch(error){toast('Unable to update',error.message);}});
+  $('leaveBtn').addEventListener('click',()=>{
+    const q=PatientData.queue();if(!q)return;
+    if(q.status==='served'){PatientData.leave();toast('Visit closed','You can join another queue.');return;}
+    $('leaveModal').classList.remove('hidden');document.body.classList.add('modal-open');$('cancelLeave').focus();
+  });
+  $('cancelLeave').addEventListener('click',closeLeave);
+  $('confirmLeave').addEventListener('click',()=>{try{PatientData.leave();closeLeave();toast('You left the queue','Your cancelled visit is saved in history.');}catch(error){toast('Unable to leave',error.message);}});
+  $('leaveModal').addEventListener('click',e=>{if(e.target===$('leaveModal'))closeLeave();});
+  document.addEventListener('keydown',e=>{if(e.key==='Escape' && !$('leaveModal').classList.contains('hidden'))closeLeave();});
+  $('markReadBtn').addEventListener('click',()=>{
+    const q=PatientData.queue();if(!q)return;
+    q.notifications=q.notifications?.length?q.notifications:[{title:'You joined a queue',message:`${q.service} · Ticket ${q.ticket} · Estimated wait ${q.wait} min`,time:q.joinedAt,read:false}];
+    q.notifications.forEach(n=>n.read=true);PatientData.save(q);
+  });
+  window.addEventListener('storage',e=>{if(e.key===PatientData.key()||e.key===null)render();});
+  window.addEventListener('patient-data-changed',render);window.addEventListener('focus',render);render();
+})();

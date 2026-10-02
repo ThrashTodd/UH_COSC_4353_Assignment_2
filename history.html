@@ -4,11 +4,15 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>QueueSmart | User Dashboard</title>
+  <title>QueueSmart | History</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css" />
+  <script src="userDatabase.js" defer></script>
+  <script src="patientData.js" defer></script>
+  <script src="app.js" defer></script>
+  <script src="patient-pages.js" defer></script>
 </head>
 <body>
   <div class="app-shell">
@@ -23,11 +27,12 @@
 
       <!-- sidebar to navigate to different pages-->
       <nav class="nav-menu">
-        <a class="nav-link" href="dashboard.html">Dashboard</a>
+        <a class="nav-link" href="user.html">Dashboard</a>
         <a class="nav-link" href="join-queue.html">Join Queue</a>
-        <a class="nav-link" href="#current-queue">My Queue</a>
+        <a class="nav-link" href="queue_status_screen.html">My Queue</a>
         <a class="nav-link active" href="history.html">History</a> <!-- History button is now highlighted-->
       </nav>
+      <button class="nav-link logout-link" id="logoutBtn" type="button">Log out</button>
 
       <div class="sidebar-footer">
         <div class="help-card">
@@ -45,9 +50,9 @@
           <h2>History</h2>
         </div>
         <div class="profile">
-          <div class="avatar">HL</div>
+          <div class="avatar" data-current-initials>—</div>
           <div class="profile-copy">
-            <strong>Hao Ly</strong>
+            <strong data-current-username>—</strong>
             <span>Patient</span>
           </div>
         </div>
@@ -61,25 +66,21 @@
             <h3>Service History</h3>
           </div>
         </div>
+        <p class="history-note">Older database records may not include dates or physician names. Those fields are shown as “Not recorded”.</p>
         <div class="table-wrap">
           <table>
-            <thead><tr><th>Date</th><th>Service</th><th>Physician</th><th>Ticket</th><th>Wait</th><th>Status</th></tr></thead>
-            <tbody>
-              <!-- TODO: show description of service when you hover over Service name-->
-               <!-- TODO: status can be waiting/in queue, in progress, or completed-->
-              <tr><td>Sep 26, 2026</td><td>Dental Cleaning</td><td>Dr. Lee</td><td>C-214</td><td>12 min</td><td><span class="badge success">Completed</span></td></tr>
-              <tr><td>Sep 11, 2026</td><td>General Examination</td><td>Dr. Parker</td><td>A-189</td><td>18 min</td><td><span class="badge success">Completed</span></td></tr>
-            </tbody>
+            <thead><tr><th>Date</th><th>Service</th><th>Physician</th><th>Ticket</th><th>Saved wait</th><th>Status</th></tr></thead>
+            <tbody id="historyTableBody" data-columns="6"></tbody>
           </table>
         </div>
       </section>
     
       <!-- you can also join a new queue on the history page-->
-      <section class="panel">
+      <section class="panel services-panel">
           <div class="panel-header">
             <div>
               <p class="eyebrow">Live status</p>
-              <h3>Join a new queue</h3>
+              <h3>Your Current Queue</h3>
             </div>
             <span class="badge neutral" id="queueBadge">Inactive</span>
           </div>
@@ -107,12 +108,11 @@
               <div class="progress-copy"><span>Queue progress</span><span id="progressText">2 patients ahead</span></div>
               <div class="progress"><div class="progress-bar" id="progressBar"></div></div>
             </div>
+            <a class="btn btn-primary" href="queue_status_screen.html">View queue status</a>
             <button class="btn btn-outline danger" id="leaveQueueBtn">Leave Queue</button>
           </div>
         </section>
     </main>
   </div>
-
-  <script src="app.js"></script>
 </body>
 </html>

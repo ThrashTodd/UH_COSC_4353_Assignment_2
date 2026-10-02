@@ -9,6 +9,10 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css" />
+  <script src="userDatabase.js" defer></script>
+  <script src="patientData.js" defer></script>
+  <script src="app.js" defer></script>
+  <script src="patient-pages.js" defer></script>
 </head>
 <body>
   <div class="app-shell">
@@ -20,8 +24,8 @@
       <nav class="nav-menu">
         <a class="nav-link" href="user.html">Dashboard</a>
         <a class="nav-link active" href="join-queue.html">Join Queue</a>
-        <a class="nav-link" href="user.html#current-queue">My Queue</a>
-        <a class="nav-link" href="user.html#history">History</a>
+        <a class="nav-link" href="queue_status_screen.html">My Queue</a>
+        <a class="nav-link" href="history.html">History</a>
       </nav>
       <button class="nav-link logout-link" id="logoutBtn" type="button">Log out</button>
       <div class="sidebar-footer"><div class="help-card"><strong>Queue tip</strong><p>Choose the service you need. QueueSmart will estimate your wait automatically.</p></div></div>
@@ -97,12 +101,9 @@
         <div><span>Estimated wait</span><strong id="confirmationWait"></strong></div>
       </div>
       <p class="estimate-note">Wait times are estimates and may change as the queue moves.</p>
-      <a class="btn btn-primary full" href="user.html#current-queue">View My Queue</a>
+      <a class="btn btn-primary full" href="queue_status_screen.html">View My Queue</a>
       <button class="btn btn-ghost full" id="closeModalBtn" type="button">Stay on this page</button>
     </section>
   </div>
-
-  <script src="userDatabase.js"></script>
-  <script src="app.js"></script>
 </body>
 </html>

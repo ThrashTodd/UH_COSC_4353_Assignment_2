@@ -196,3 +196,9 @@
 @media (max-width: 480px) {
   .stepper li { font-size: 10px; }
 }
+/* Match the existing patient dashboard layout and keyboard interactions. */
+#history + .panel { margin-top: 18px; }
+#emptyView { margin-top: 22px; }
+#activeView .estimate-note { font-size: 12px; line-height: 1.6; color: var(--muted); }
+.stepper { overflow-wrap: anywhere; }
+@media (max-width: 760px) { .ticket-card { width: 100%; } }

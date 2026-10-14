@@ -90,22 +90,12 @@ function saveQueues(queues) {
 }
 
 function protectAdminPage() {
-  const adminUsername = getCurrentUsername();
-  const adminUser = adminUsername ? getUser(adminUsername) : null;
+  const adminUsername = localStorage.getItem("currentUser")
 
-  if (!adminUser) {
-    window.location.href = "index.html";
-    return;
+  if(!adminUsername) {
+    window.location.href = "index.html"
   }
-
-  if (adminUser.role !== "admin") {
-    window.location.href = "user.html";
-    return;
-  }
-
-  document.querySelectorAll("#adminUsername").forEach((element) => {
-    element.textContent = adminUsername;
-  });
+  document.querySelector("#adminUsername").textContent = adminUsername
 }
 
 function initializeSharedAdminUI() {

@@ -34,43 +34,84 @@ function handleFormSubmit(event) {
     }
 }
 
-function loginUser() {
+async function loginUser() {
   const username = usernameInput.value.trim();
   const password = passwordInput.value;
-  const user = getUser(username);
 
-  if (!user) {
-    showErrors(["User not found"]);
-    return;
-  }
+  try {
+    const response = await fetch(
+      "http://127.0.0.1:8000/login",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          username: username,
+          password: password
+        })
+      }
+    )
+    const data = await response.json()
 
-  if (user.password !== password) {
-    showErrors(["Password incorrect"]);
-    return;
-  }
+    if (!response.ok) {
+      showErrors([data.detail])
+      return
+    }
 
-  setCurrentUser(username);
-
-  if (user.role === "admin") {
-    window.location.href = "admin.html";
-  } else {
-    window.location.href = "user.html";
+    // save username for the next page
+    localStorage.setItem("currentUser", data.username)
+    
+    // redirect based on role returned from api
+    if(data.role === "admin") {
+      window.location.href = "admin.html"
+    } else {
+      window.location.href = "user.html"
+    }
+  } catch(error) {
+    showErrors([
+      "Unable to connect to the server. Please try again."
+    ])
+    console.error("Login request failed:", error)
   }
 }
 
-function registerUser() {
-  const username = usernameInput.value.trim();
-  const email = emailInput.value.trim();
-  const password = passwordInput.value;
 
-  const created = addNewUser(username, email, password);
+async function registerUser() {
+  const username = usernameInput.value.trim()
+  const email = emailInput.value.trim()
+  const password = passwordInput.value
 
-  if (!created) {
-    showErrors(["Username taken, try again"]);
-    return;
+  try {
+    const response = await fetch(
+      "http://127.0.0.1:8000/register",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          username: username,
+          email: email,
+          password: password
+        })
+      }
+    )
+
+    const data = await response.json()
+    if (!response.ok) {
+      showErrors([data.detail])
+      return
+    }
+
+    // success, send the user to login
+    window.location.href = "index.html"
+  } catch(error) {
+    showErrors([
+      "Unable to connect to the server. Please try again."
+    ])
+    console.error("registration request failed:", error)
   }
-
-  window.location.href = "index.html";
 }
 
 function getLoginErrors(username, password) {

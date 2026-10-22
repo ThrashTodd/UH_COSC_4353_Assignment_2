@@ -1,3 +1,4 @@
+/* This file handles and displays the saved data on the dashboard and history pages. */
 (function () {
   const username=getCurrentUsername(), user=username?getUser(username):null;
   if(!user || user.role==='admin')return; // app.js handles redirection.

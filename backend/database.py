@@ -59,3 +59,17 @@ user_db = {
     }
 }
 
+INITIAL_SERVICES = [
+    {"id": "general-examination", "name": "General Examination", "description": "Routine dental examination and consultation.", "duration": 20, "priority": "medium", "isOpen": True},
+    {"id": "dental-cleaning", "name": "Dental Cleaning", "description": "Professional cleaning, scaling, and polishing.", "duration": 30, "priority": "low", "isOpen": True},
+    {"id": "emergency-care", "name": "Emergency Care", "description": "Urgent care for pain, swelling, or dental injury.", "duration": 15, "priority": "high", "isOpen": True},
+    {"id": "orthodontic-consultation", "name": "Orthodontic Consultation", "description": "Consultation for braces, aligners, and bite alignment.", "duration": 30, "priority": "medium", "isOpen": False},
+]
+services = {item["id"]: item.copy() for item in INITIAL_SERVICES}
+
+def reset_services():
+    services.clear()
+    services.update({item["id"]: item.copy() for item in INITIAL_SERVICES})
+
+queues = {}
+queue_history = []

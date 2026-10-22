@@ -155,24 +155,3 @@ def test_delete_service(monkeypatch):
     assert response.content == b""
     assert deleted == ["genExam"]
     
-
-
-
-'''
-#Update an existing service by its ID
-def update_service(service_id: str, data):
-    service = get_service(service_id)
-    service.update(data.model_dump())
-    return service
-
-#Open or close a service
-def change_status(service_id: str, is_open: bool):
-    service = get_service(service_id)
-    service["isOpen"] = is_open
-    return service
-
-#Delete a service by its ID
-def delete_service(service_id: str):
-    get_service(service_id)
-    del services[service_id]
-'''

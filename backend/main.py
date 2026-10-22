@@ -8,7 +8,7 @@ import queue_logic
 from database import user_db, services
 
 app = FastAPI(title= "Queuesense API", description= "API for Queuesense, a queue management system", version= "0.1.0")
-# python -m uvicorn main:app --reload --app-dir backend
+# python -m uvicorn workspace.main:app --reload --app-dir backend
 
 # allow the frontend development server to communicate with this api
 app.add_middleware(

@@ -32,3 +32,4 @@ jobs:
         PYTHONPATH: backend
       run: |
         python -m pytest backend/test_auth.py -v
+        python -m pytest backend/test_service_logic.py -v

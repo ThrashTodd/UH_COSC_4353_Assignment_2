@@ -115,7 +115,7 @@ function setCurrentUser(username) {
 }
 
 function getCurrentUsername() {
-  return JSON.parse(sessionStorage.getItem("currentUser"));
+  return localStorage.getItem("currentUser") || JSON.parse(sessionStorage.getItem("currentUser"));
 }
 
 function getCurrentUser() {
@@ -124,6 +124,7 @@ function getCurrentUser() {
 }
 
 function clearCurrentUser() {
+  localStorage.removeItem("currentUser");
   sessionStorage.removeItem("currentUser");
 }
 

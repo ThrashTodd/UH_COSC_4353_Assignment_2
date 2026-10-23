@@ -73,3 +73,4 @@ def reset_services():
 
 queues = {}
 queue_history = []
+notifications = []

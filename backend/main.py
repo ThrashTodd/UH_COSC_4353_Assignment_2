@@ -1,11 +1,15 @@
+import logging
 from typing import Literal
 from fastapi import FastAPI, Response
 from pydantic import BaseModel, Field, field_validator
 from fastapi.middleware.cors import CORSMiddleware
 from auth import router as auth_router
-import service_logic 
+from notifications import router as notifications_router
+import service_logic
 import queue_logic
 from database import user_db, services
+
+logging.basicConfig(level=logging.INFO, format="%(levelname)s:     %(name)s - %(message)s")
 
 app = FastAPI(title= "Queuesense API", description= "API for Queuesense, a queue management system", version= "0.1.0")
 # python -m uvicorn main:app --reload --app-dir backend
@@ -82,6 +86,8 @@ def root():
 
 # connect the authentication routes to the app
 app.include_router(auth_router)
+
+app.include_router(notifications_router)
 
 #Queue management routes
 class JoinQueueInput(BaseModel):

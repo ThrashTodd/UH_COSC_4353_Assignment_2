@@ -1,10 +1,11 @@
 """
-The queue operations is shared by patient and the administrator 
+The queue operations is shared by patient and the administrator
 """
 from datetime import datetime, timezone
 from uuid import uuid4
 from fastapi import HTTPException
 from database import services, user_db, queues, queue_history
+import notification_logic
 
 PRIORITY = {"low": 0, "medium": 1, "high": 2}
 
@@ -64,10 +65,12 @@ def join_queue(service_id, username, priority="medium"):
     entry = {"id": str(uuid4()), "service_id": service_id,
              "username": username, "ticket": "Q-" + uuid4().hex[:8].upper(),
              "priority": priority, "joined_at": timestamp(), "status": "waiting"}
-    waiting = waiting(service_id)
-    insert_at = next((i for i, item in enumerate(waiting)
-                      if PRIORITY[priority] > PRIORITY[item["priority"]]), len(waiting))
-    waiting.insert(insert_at, entry)
+    line = waiting(service_id)
+    insert_at = next((i for i, item in enumerate(line)
+                      if PRIORITY[priority] > PRIORITY[item["priority"]]), len(line))
+    line.insert(insert_at, entry)
+    notification_logic.notify_joined(get_entry(entry["id"]))
+    notification_logic.check_almost_ready(service_id)
     return get_entry(entry["id"])
 
 #Retrieve a specific queue entry by its unique ID
@@ -83,7 +86,7 @@ def get_user_entry(username):
                 return get_entry(e["id"])
     raise HTTPException(404, "User has no active queue")
 
-#Allow patients to voluntarily leave a queue they have joined 
+#Allow patients to voluntarily leave a queue they have joined
 def leave_queue(entry_id, username):
     sid, entries, index, entry = find(entry_id)
     if entry["username"] != username:
@@ -91,9 +94,11 @@ def leave_queue(entry_id, username):
     removed = entries.pop(index)
     record = {**removed, "status": "left", "ended_at": timestamp()}
     queue_history.append(record)
+    notification_logic.notify_left(record)
+    notification_logic.check_almost_ready(sid)
     return record
 
-#Allow an adminstrator to serve the first waiting patient in a service queue 
+#Allow an adminstrator to serve the first waiting patient in a service queue
 def serve_next(service_id):
     _service(service_id)
     entries = waiting(service_id)
@@ -102,6 +107,8 @@ def serve_next(service_id):
     entry = entries.pop(0)
     record = {**entry, "status": "served", "ended_at": timestamp()}
     queue_history.append(record)
+    notification_logic.notify_serving(record)
+    notification_logic.check_almost_ready(service_id)
     return record
 
 #Remove a specific queue entry from a service
@@ -110,6 +117,8 @@ def remove_entry(entry_id):
     entries.pop(index)
     record = {**entry, "status": "removed", "ended_at": timestamp()}
     queue_history.append(record)
+    notification_logic.notify_removed(record)
+    notification_logic.check_almost_ready(sid)
     return record
 
 #Move patients up or down in a queue
@@ -121,4 +130,5 @@ def move_entry(entry_id, direction):
     if entries[index]["priority"] != entries[other]["priority"]:
         raise HTTPException(409, "Cannot move across priority groups")
     entries[index], entries[other] = entries[other], entries[index]
+    notification_logic.check_almost_ready(sid)
     return get_queue(sid)

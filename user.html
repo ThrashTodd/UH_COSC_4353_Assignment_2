@@ -12,6 +12,7 @@
   <script src="patientData.js" defer></script>
   <script src="app.js" defer></script>
   <script src="patient-pages.js" defer></script>
+  <script src="notifications.js" defer></script>
 </head>
 
 <body>
@@ -140,24 +141,7 @@
             </div>
             <button class="link-btn" id="markReadBtn">Mark all read</button>
           </div>
-          <div class="notification-list" id="notificationList">
-            <div class="notification unread">
-              <div class="notif-dot"></div>
-              <div>
-                <strong>Welcome to QueueSmart</strong>
-                <p>You can now join dental queues online instead of waiting at the front desk.</p>
-                <span>9:10 AM</span>
-              </div>
-            </div>
-            <div class="notification">
-              <div class="notif-dot"></div>
-              <div>
-                <strong>Dental cleaning reminder</strong>
-                <p>Your previous cleaning visit was completed successfully.</p>
-                <span>Yesterday</span>
-              </div>
-            </div>
-          </div>
+          <div class="notification-list" id="notificationList" aria-live="polite"></div>
         </div>
       </section>
 
@@ -209,6 +193,6 @@
       </section>
     </main>
   </div>
-  
+
 </body>
 </html>

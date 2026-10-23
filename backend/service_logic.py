@@ -1,6 +1,7 @@
 import re
 from fastapi import HTTPException
 from database import services
+import notification_logic
 
 #Generate a unique service ID based on the service name
 def make_id(name: str) -> str:
@@ -38,7 +39,10 @@ def update_service(service_id: str, data):
 #Open or close a service
 def change_status(service_id: str, is_open: bool):
     service = get_service(service_id)
+    was_open = service["isOpen"]
     service["isOpen"] = is_open
+    if was_open and not is_open:
+        notification_logic.notify_queue_closed(service_id)
     return service
 
 #Delete a service by its ID

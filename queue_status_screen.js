@@ -15,17 +15,6 @@
   }
   function closeLeave(){ $('leaveModal').classList.add('hidden');document.body.classList.remove('modal-open');$('leaveBtn').focus(); }
   function person(type,label,title){const el=document.createElement('div');el.className=`person ${type}`;el.textContent=label;el.title=title;$('lineViz').append(el);}
-  function renderNotifications(q){
-    $('notifList').replaceChildren();
-    const records=q.notifications?.length?q.notifications:[{title:'You joined a queue',message:`${q.service} · Ticket ${q.ticket} · Estimated wait ${q.wait} min`,time:q.joinedAt,read:false}];
-    for(const n of records){
-      const box=document.createElement('div');box.className=`notification ${n.read?'':'unread'}`;
-      const dot=document.createElement('div');dot.className='notif-dot';box.append(dot);
-      const copy=document.createElement('div');
-      for(const [tag,value] of [['strong',n.title],['p',n.message],['span',timeText(n.time)]]){const el=document.createElement(tag);el.textContent=value || '';copy.append(el);}
-      box.append(copy);$('notifList').append(box);
-    }
-  }
   function render(){
     let q;
     try{q=PatientData.queue();}catch(error){toast('Unable to load queue',error.message);return;}
@@ -64,7 +53,6 @@
     text('dAvg',Number.isFinite(q.perPerson)?`~${Math.round(q.perPerson*10)/10} min (estimated)`:'Not recorded');text('dJoined',timeText(q.joinedAt));
     text('leaveBtn',status==='served'?'Close visit':'Leave Queue');text('modalTicket',q.ticket);
     $('advanceDemoBtn').disabled=status==='served';
-    renderNotifications(q);
   }
   $('refreshBtn').addEventListener('click',()=>{render();toast('Queue refreshed','Loaded your latest saved queue.');});
   $('advanceDemoBtn').addEventListener('click',()=>{try{PatientData.advance();}catch(error){toast('Unable to update',error.message);}});
@@ -77,11 +65,6 @@
   $('confirmLeave').addEventListener('click',()=>{try{PatientData.leave();closeLeave();toast('You left the queue','Your cancelled visit is saved in history.');}catch(error){toast('Unable to leave',error.message);}});
   $('leaveModal').addEventListener('click',e=>{if(e.target===$('leaveModal'))closeLeave();});
   document.addEventListener('keydown',e=>{if(e.key==='Escape' && !$('leaveModal').classList.contains('hidden'))closeLeave();});
-  $('markReadBtn').addEventListener('click',()=>{
-    const q=PatientData.queue();if(!q)return;
-    q.notifications=q.notifications?.length?q.notifications:[{title:'You joined a queue',message:`${q.service} · Ticket ${q.ticket} · Estimated wait ${q.wait} min`,time:q.joinedAt,read:false}];
-    q.notifications.forEach(n=>n.read=true);PatientData.save(q);
-  });
   window.addEventListener('storage',e=>{if(e.key===PatientData.key()||e.key===null)render();});
   window.addEventListener('patient-data-changed',render);window.addEventListener('focus',render);render();
 })();

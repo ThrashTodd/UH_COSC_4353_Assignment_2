@@ -24,7 +24,12 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         # Installs fastapi, pydantic, pytest, and httpx from your file
-        if [ -f backend/requirements.txt ]; then pip install -r backend/tests/requirements.txt; fi
+        if [ -f backend/tests/requirements.txt ]; then 
+          pip install -r backend/tests/requirements.txt;
+        else
+          echo "Error: backend/tests.requirements.txt not found"
+          exit 1
+        fi
 
     - name: Run tests with pytest
       env:

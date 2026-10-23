@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from database import user_db
 
-router = APIRouter()
+router = APIRouter(tags=["auth"])
 
 # defines the data required for login
 class LoginRequest(BaseModel):

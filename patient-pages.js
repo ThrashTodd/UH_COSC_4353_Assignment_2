@@ -8,6 +8,7 @@
     if(!value)return 'Not recorded';
     const date=new Date(value);return Number.isNaN(date.getTime())?'Not recorded':date.toLocaleDateString();
   }
+
   function renderHistory() {
     const history=PatientData.history();
     const sorted=history.map((record,index)=>({record,index})).sort((a,b)=>{
@@ -35,9 +36,10 @@
       const d=new Date(raw);return d.getFullYear()===now.getFullYear() && d.getMonth()===now.getMonth();
     }).length);
   }
-  function renderQueueCard() {
+
+  async function renderQueueCard() {
     if(!$('activeQueueState'))return;
-    const q=PatientData.queue();
+    const q=await PatientData.queue();
     $('emptyQueueState').classList.toggle('hidden',Boolean(q));$('activeQueueState').classList.toggle('hidden',!q);
     text('currentQueueStat',q?.service || 'Not joined');text('waitStat',q?`${q.wait} min`:'—');
     const waiting=q && !['in-service','served'].includes(q.status);
@@ -49,12 +51,14 @@
     const badge=$('activeQueueState').querySelector('.queue-title-row .badge');if(badge)badge.textContent=PatientData.status(q.status || 'waiting');
     text('leaveQueueBtn',q.status==='served'?'Close visit':'Leave Queue');
   }
-  function render(){try{renderHistory();renderQueueCard();}catch(error){console.error(error);text('currentQueueStat','Unable to read saved data');}}
-  $('leaveQueueBtn')?.addEventListener('click',()=>{
-    const q=PatientData.queue();if(!q)return;
-    if(q.status==='served' || confirm('Leave this queue? You will lose your position.')){try{PatientData.leave();}catch(error){alert(error.message);}}
+  
+  async function render(){try{renderHistory();await renderQueueCard();}catch(error){console.error(error);text('currentQueueStat','Unable to load queue');}}
+  $('leaveQueueBtn')?.addEventListener('click',async()=>{
+    if(!confirm('Leave this queue? You will lose your position.')) return;
+    try { await PatientData.leave(); await render(); }
+    catch(error) { alert(error.message); }
   });
   $('markReadBtn')?.addEventListener('click',()=>document.querySelectorAll('#notificationList .notification').forEach(el=>el.classList.remove('unread')));
-  window.addEventListener('storage',e=>{if(e.key==='users'||e.key===PatientData.key()||e.key===null)render();});
-  window.addEventListener('patient-data-changed',render);window.addEventListener('focus',render);render();
+  window.addEventListener('storage',e=>{if(e.key==='users'||e.key==='currentUser'||e.key===null)render();});
+  window.addEventListener('patient-data-changed',render);window.addEventListener('focus',render);render();setInterval(render,10000);
 })();

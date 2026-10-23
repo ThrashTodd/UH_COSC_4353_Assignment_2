@@ -9,15 +9,29 @@
     if(!raw)return 'Not recorded';
     const date=new Date(raw);return Number.isNaN(date.getTime())?raw:date.toLocaleTimeString([],{hour:'numeric',minute:'2-digit'});
   }
+
   function toast(title,message){
     text('toastTitle',title);text('toastText',message);$('toast').classList.remove('hidden');
     clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('toast').classList.add('hidden'),3500);
   }
+
   function closeLeave(){ $('leaveModal').classList.add('hidden');document.body.classList.remove('modal-open');$('leaveBtn').focus(); }
   function person(type,label,title){const el=document.createElement('div');el.className=`person ${type}`;el.textContent=label;el.title=title;$('lineViz').append(el);}
-  function render(){
+  function renderNotifications(q){
+    $('notifList').replaceChildren();
+    const records=q.notifications?.length?q.notifications:[{title:'You joined a queue',message:`${q.service} · Ticket ${q.ticket} · Estimated wait ${q.wait} min`,time:q.joinedAt,read:false}];
+    for(const n of records){
+      const box=document.createElement('div');box.className=`notification ${n.read?'':'unread'}`;
+      const dot=document.createElement('div');dot.className='notif-dot';box.append(dot);
+      const copy=document.createElement('div');
+      for(const [tag,value] of [['strong',n.title],['p',n.message],['span',timeText(n.time)]]){const el=document.createElement(tag);el.textContent=value || '';copy.append(el);}
+      box.append(copy);$('notifList').append(box);
+    }
+  }
+  
+  async function render(){
     let q;
-    try{q=PatientData.queue();}catch(error){toast('Unable to load queue',error.message);return;}
+    try{q=await PatientData.queue();}catch(error){toast('Unable to load queue',error.message);return;}
     $('activeView').classList.toggle('hidden',!q);$('emptyView').classList.toggle('hidden',Boolean(q));
     if(!q){$('leaveModal').classList.add('hidden');document.body.classList.remove('modal-open');return;}
     const status=q.status || 'waiting';
@@ -52,19 +66,22 @@
     text('dService',q.service);text('dDoctor',q.doctor || 'Not assigned');text('dRoom',q.room || 'Not assigned');
     text('dAvg',Number.isFinite(q.perPerson)?`~${Math.round(q.perPerson*10)/10} min (estimated)`:'Not recorded');text('dJoined',timeText(q.joinedAt));
     text('leaveBtn',status==='served'?'Close visit':'Leave Queue');text('modalTicket',q.ticket);
-    $('advanceDemoBtn').disabled=status==='served';
+    $('advanceDemoBtn').disabled=true;
+    $('advanceDemoBtn').hidden=true;
+    // notifications.js renders real backend notifications when loaded.
   }
   $('refreshBtn').addEventListener('click',()=>{render();toast('Queue refreshed','Loaded your latest saved queue.');});
-  $('advanceDemoBtn').addEventListener('click',()=>{try{PatientData.advance();}catch(error){toast('Unable to update',error.message);}});
+  $('advanceDemoBtn').disabled=true; $('advanceDemoBtn').hidden=true; // Real queue order changes only through backend
   $('leaveBtn').addEventListener('click',()=>{
-    const q=PatientData.queue();if(!q)return;
-    if(q.status==='served'){PatientData.leave();toast('Visit closed','You can join another queue.');return;}
     $('leaveModal').classList.remove('hidden');document.body.classList.add('modal-open');$('cancelLeave').focus();
   });
   $('cancelLeave').addEventListener('click',closeLeave);
-  $('confirmLeave').addEventListener('click',()=>{try{PatientData.leave();closeLeave();toast('You left the queue','Your cancelled visit is saved in history.');}catch(error){toast('Unable to leave',error.message);}});
+  $('confirmLeave').addEventListener('click',async()=>{
+    try { await PatientData.leave(); closeLeave(); await render(); toast('You left the queue','Your spot has been released.'); }
+    catch(error){toast('Unable to leave',error.message);}
+  });
   $('leaveModal').addEventListener('click',e=>{if(e.target===$('leaveModal'))closeLeave();});
   document.addEventListener('keydown',e=>{if(e.key==='Escape' && !$('leaveModal').classList.contains('hidden'))closeLeave();});
-  window.addEventListener('storage',e=>{if(e.key===PatientData.key()||e.key===null)render();});
-  window.addEventListener('patient-data-changed',render);window.addEventListener('focus',render);render();
+  // Backend notifications.js handles read receipts; do not write notifications to localStorage.
+  window.addEventListener('patient-data-changed',render);window.addEventListener('focus',render);render();setInterval(render,10000);
 })();

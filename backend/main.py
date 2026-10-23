@@ -1,6 +1,6 @@
 import logging
 from typing import Literal
-from fastapi import FastAPI, Response
+from fastapi import FastAPI, Response, APIRouter
 from pydantic import BaseModel, Field, field_validator
 from fastapi.middleware.cors import CORSMiddleware
 from auth import router as auth_router
@@ -8,10 +8,11 @@ from notifications import router as notifications_router
 import service_logic
 import queue_logic
 import wait_time
+import history_logic
 from database import user_db, services
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s:     %(name)s - %(message)s")
-
+router = APIRouter(prefix='/history', tags=['History'])
 app = FastAPI(title= "Queuesense API", description= "API for Queuesense, a queue management system", version= "0.1.0")
 # python -m uvicorn main:app --reload --app-dir backend
 
@@ -142,3 +143,18 @@ def move_queue_entry(entry_id: str, body: MoveQueueInput):
 @app.get("/wait-times/{service_id}", tags=["Wait Times"])
 def wait_time_preview(service_id: str):
     return wait_time.estimate_service(service_id)
+
+#History routes
+@router.get('')
+def all_history(include_legacy: bool = False):
+    return history_logic.list_all(include_legacy)
+
+@router.get('/user/{username}')
+def patient_history(username: str, include_legacy: bool = True):
+    return history_logic.list_for_user(username, include_legacy)
+
+@router.get('/{entry_id}')
+def history_entry(entry_id: str):
+    return history_logic.get_one(entry_id)
+
+app.include_router(router)

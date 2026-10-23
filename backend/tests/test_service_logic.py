@@ -1,3 +1,4 @@
+import pytest
 from fastapi.testclient import TestClient
 from main import app
 import database
@@ -154,4 +155,4 @@ def test_delete_service(monkeypatch):
     assert response.status_code == 204
     assert response.content == b""
     assert deleted == ["genExam"]
-    
+

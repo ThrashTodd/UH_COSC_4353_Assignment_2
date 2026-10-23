@@ -24,12 +24,11 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         # Installs fastapi, pydantic, pytest, and httpx from your file
-        if [ -f backend/requirements.txt ]; then pip install -r backend/requirements.txt; fi
+        if [ -f backend/requirements.txt ]; then pip install -r backend/tests/requirements.txt; fi
 
     - name: Run tests with pytest
       env:
         # Resolves your local files (database, service_logic, etc.) inside backend/
         PYTHONPATH: backend
       run: |
-        python -m pytest backend/test_auth.py -v
-        python -m pytest backend/test_service_logic.py -v
+        python -m pytest -v

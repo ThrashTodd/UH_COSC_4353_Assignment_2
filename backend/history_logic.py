@@ -13,7 +13,9 @@ def normalize_queue(record):
         'joined_at': record.get('joined_at'),
         'ended_at': record.get('ended_at'),
         'date': record.get('ended_at'),
-        'wait': record.get('estimated_wait'),
+        'wait': record.get("initial_estimated_wait", record.get('estimated_wait')),
+        'initial_estimated_wait': record.get('initial_estimated_wait'),
+        'final_estimated_wait': record.get('estimated_wait'),
         'doctor': record.get('doctor'),
         'source': 'queue',
     }

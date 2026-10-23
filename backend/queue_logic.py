@@ -67,6 +67,8 @@ def join_queue(service_id, username, priority="medium"):
     insert_at = next((i for i, item in enumerate(line)
                       if PRIORITY[priority] > PRIORITY[item["priority"]]), len(line))
     line.insert(insert_at, entry)
+    queue_info = get_entry(entry["id"])
+    entry["initial_estimated_wait"] = queue_info["estimated_wait"]
     notification_logic.notify_joined(get_entry(entry["id"]))
     notification_logic.check_almost_ready(service_id)
     return get_entry(entry["id"])
@@ -89,8 +91,9 @@ def leave_queue(entry_id, username):
     sid, entries, index, entry = find(entry_id)
     if entry["username"] != username:
         raise HTTPException(403, "Cannot leave another user's queue")
+    current_entry = get_entry(entry_id)
     removed = entries.pop(index)
-    record = {**removed, "status": "left", "ended_at": timestamp()}
+    record = {**removed, "status": "left", "ended_at": timestamp(), "estimated_wait": current_entry["estimated_wait"]}
     queue_history.append(record)
     notification_logic.notify_left(record)
     notification_logic.check_almost_ready(sid)
@@ -102,8 +105,9 @@ def serve_next(service_id):
     entries = waiting(service_id)
     if not entries:
         raise HTTPException(409, "Queue is empty")
+    current_entry = get_entry(entries[0]["id"])
     entry = entries.pop(0)
-    record = {**entry, "status": "served", "ended_at": timestamp()}
+    record = {**entry, "status": "served", "ended_at": timestamp(), "estimated_wait": current_entry["estimated_wait"]}
     queue_history.append(record)
     notification_logic.notify_serving(record)
     notification_logic.check_almost_ready(service_id)
@@ -112,8 +116,10 @@ def serve_next(service_id):
 #Remove a specific queue entry from a service
 def remove_entry(entry_id):
     sid, entries, index, entry = find(entry_id)
+    current_entry = get_entry(entry_id)
+
     entries.pop(index)
-    record = {**entry, "status": "removed", "ended_at": timestamp()}
+    record = {**entry, "status": "removed", "ended_at": timestamp(), "estimated_wait": current_entry["estimated_wait"]}
     queue_history.append(record)
     notification_logic.notify_removed(record)
     notification_logic.check_almost_ready(sid)

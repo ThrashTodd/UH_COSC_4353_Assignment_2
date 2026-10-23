@@ -7,6 +7,7 @@ from auth import router as auth_router
 from notifications import router as notifications_router
 import service_logic
 import queue_logic
+import wait_time
 from database import user_db, services
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s:     %(name)s - %(message)s")
@@ -136,3 +137,8 @@ def remove_queue_entry(entry_id: str):
 @app.patch("/queues/entries/{entry_id}/move")
 def move_queue_entry(entry_id: str, body: MoveQueueInput):
     return queue_logic.move_entry(entry_id, body.direction)
+
+#Wait time estimation route
+@app.get("/wait-times/{service_id}", tags=["Wait Times"])
+def wait_time_preview(service_id: str):
+    return wait_time.estimate_service(service_id)

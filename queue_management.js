@@ -6,7 +6,8 @@
   const data=r.status===204?null:await r.json();
   if(!r.ok)throw new Error(typeof data?.detail==='string'?data.detail:'Request failed');
   return data;
- }
+ } 
+
  function message(s){$('queueMessage').textContent=s;$('queueMessage').classList.remove('hidden');}
  const escape=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  async function loadServices(){
@@ -17,6 +18,7 @@
    for(const svc of services){const o=document.createElement('option');o.value=svc.id;o.textContent=svc.name;selection.append(o);}
    if(services.some(s=>s.id===prev))selection.value=prev;
  }
+
  async function refresh(){
    const sid=$('queueServiceSelect').value;if(!sid)return;
    current=await api('/queues/'+encodeURIComponent(sid));
@@ -45,6 +47,7 @@
      article.append(position,copy,actions);list.append(article);
    });
  }
+ 
  async function perform(callback){try{await callback();await refresh();}catch(e){message(e.message);}}
  $('queueServiceSelect').addEventListener('change',()=>perform(async()=>{}));
  $('serveNextBtn').addEventListener('click',()=>perform(async()=>{

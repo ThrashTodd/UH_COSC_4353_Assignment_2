@@ -6,6 +6,7 @@ from uuid import uuid4
 from fastapi import HTTPException
 from database import services, user_db, queues, queue_history
 import notification_logic
+import wait_time
 
 PRIORITY = {"low": 0, "medium": 1, "high": 2}
 
@@ -34,10 +35,7 @@ def find(entry_id):
 
 #Produce a list of queue entries with their positions and estimated wait times
 def view(service_id, entries):
-    duration = _service(service_id)["duration"]
-    return [{**item, "position": idx + 1,
-             "estimated_wait": idx * duration}
-            for idx, item in enumerate(entries)]
+    return wait_time.estimate_entries(service_id, entries)
 
 #Retrive the complete information about one service's queue
 def get_queue(service_id):

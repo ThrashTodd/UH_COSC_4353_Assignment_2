@@ -84,3 +84,31 @@ def register(request: RegisterRequest):
         "message": "Registration successful",
         "username": username
     }
+
+
+
+# added get for user
+class UserResponse(BaseModel):
+    username: str
+    role: str
+    history: list
+
+@router.get("/users/{username}", response_model=UserResponse)
+def read_user(username: str):
+    def get_user(username: str):
+        user = user_db.get(username)
+
+        if user is None:
+            raise HTTPException(
+                status_code=404,
+                detail="User not found"
+            )
+        return user
+
+    user = get_user(username)
+
+    return {
+        "username": username,
+        "role": user["role"],
+        "history": user["history"]
+    }

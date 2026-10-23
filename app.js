@@ -1,15 +1,7 @@
 (function () {
 // Authentication / current user management
-const currentUsername = getCurrentUsername();
+const currentUsername = localStorage.getItem("userName")
 const currentUser = currentUsername ? getUser(currentUsername) : null;
-
-if (!currentUser) {
-  window.location.href = "index.html";
-  return;
-} else if (currentUser.role === "admin") {
-  window.location.href = "admin.html";
-  return;
-}
 
 function getInitials(name) {
   return name
@@ -31,7 +23,7 @@ document.querySelectorAll("[data-current-initials]").forEach((element) => {
 const logoutBtn = document.getElementById("logoutBtn");
 if (logoutBtn) {
   logoutBtn.addEventListener("click", () => {
-    clearCurrentUser();
+    localStorage.clear()
     window.location.href = "index.html";
   });
 }

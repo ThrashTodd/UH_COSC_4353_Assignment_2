@@ -14,6 +14,7 @@
   <script src="patient-pages.js" defer></script>
   <script src="history.js" defer></script>
   <script src="notifications.js" defer></script>
+  <script src="dashboard_live.js" defer></script>
 </head>
 
 <body>
@@ -154,25 +155,9 @@
           </div>
           <a class="link-btn" href="join-queue.html">View all services</a>
         </div>
-        <div class="service-grid">
-          <article class="service-card">
-            <h4>General Examination</h4>
-            <p>Routine dental exam and oral health consultation.</p>
-            <div class="service-meta"><span>4 waiting</span><strong>~20 min</strong></div>
-            <a class="btn btn-outline" href="join-queue.html?service=General%20Examination">Join Queue</a>
-          </article>
-          <article class="service-card">
-            <h4>Dental Cleaning</h4>
-            <p>Professional cleaning, plaque removal, and polishing.</p>
-            <div class="service-meta"><span>3 waiting</span><strong>~15 min</strong></div>
-            <a class="btn btn-outline" href="join-queue.html?service=Dental%20Cleaning">Join Queue</a>
-          </article>
-          <article class="service-card">
-            <h4>Emergency Care</h4>
-            <p>Urgent dental care for pain, swelling, or injury.</p>
-            <div class="service-meta"><span>1 waiting</span><strong>~8 min</strong></div>
-            <a class="btn btn-outline" href="join-queue.html?service=Emergency%20Care">Join Queue</a>
-          </article>
+
+        <div class="service-grid" id="dashboardServiceGrid">
+          <p>Loading available services...</p>
         </div>
       </section>
 

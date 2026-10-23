@@ -9,34 +9,6 @@
     const date=new Date(value);return Number.isNaN(date.getTime())?'Not recorded':date.toLocaleDateString();
   }
 
-  function renderHistory() {
-    const history=PatientData.history();
-    const sorted=history.map((record,index)=>({record,index})).sort((a,b)=>{
-      const stamp=r=>{const d=PatientData.date(r);return d?(Date.parse(d)||0):0;};
-      return stamp(b.record)-stamp(a.record)||a.index-b.index;
-    }).map(x=>x.record);
-    const body=$('historyTableBody');
-    if(body){
-      body.replaceChildren();const columns=Number(body.dataset.columns)||5;
-      const limit=Number(body.dataset.limit)||sorted.length;
-      for(const record of sorted.slice(0,limit)) {
-        const row=document.createElement('tr');
-        const cells=[formatDate(PatientData.date(record)),record.service || 'Not recorded'];
-        if(columns===6)cells.push(record.doctor || record.physician || 'Not recorded');
-        cells.push(record.ticket ?? 'Not recorded',record.wait!==null && record.wait!==undefined && Number.isFinite(Number(record.wait))?`${record.wait} min`:'Not recorded');
-        for(const value of cells){const td=document.createElement('td');td.textContent=value;row.append(td);}
-        const td=document.createElement('td'),badge=document.createElement('span');
-        const status=PatientData.status(record.status);badge.className=`badge ${status==='Completed'?'success':'neutral'}`;badge.textContent=status;td.append(badge);row.append(td);body.append(row);
-      }
-      if(!sorted.length){const row=document.createElement('tr'),cell=document.createElement('td');cell.colSpan=columns;cell.textContent='No previous visits recorded for your account.';row.append(cell);body.append(row);}
-    }
-    const now=new Date();
-    text('visitsThisMonth',history.filter(r=>{
-      const raw=PatientData.date(r);if(!raw || PatientData.status(r.status)!=='Completed')return false;
-      const d=new Date(raw);return d.getFullYear()===now.getFullYear() && d.getMonth()===now.getMonth();
-    }).length);
-  }
-
   async function renderQueueCard() {
     if(!$('activeQueueState'))return;
     const q=await PatientData.queue();
@@ -52,7 +24,14 @@
     text('leaveQueueBtn',q.status==='served'?'Close visit':'Leave Queue');
   }
   
-  async function render(){try{renderHistory();await renderQueueCard();}catch(error){console.error(error);text('currentQueueStat','Unable to load queue');}}
+  async function render() {
+    try {
+        await renderQueueCard();
+    } catch (error) {
+        console.error(error);
+        text('currentQueueStat', 'Unable to load queue');
+    }
+}
   $('leaveQueueBtn')?.addEventListener('click',async()=>{
     if(!confirm('Leave this queue? You will lose your position.')) return;
     try { await PatientData.leave(); await render(); }

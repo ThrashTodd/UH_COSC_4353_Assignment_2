@@ -1,3 +1,13 @@
+
+pre made users:
+
+user: admin1
+password: admin123
+
+user: user1
+password: user1_123
+
+
 Design and implementation of backend for Queuesmart app.
 
 "python -m uvicorn main:app --reload --app-dir backend" starts the backend server that handles the database and get and post requests. After running the server you can append docs#/ to access the documentation that shows routs and base models used.

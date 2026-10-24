@@ -1,6 +1,9 @@
 (function () {
-  const username=getCurrentUsername(), user=username?getUser(username):null;
-  if(!user || user.role==='admin')return;
+  const username = localStorage.getItem("currentUser");
+  if (!username) {
+    window.location.replace("index.html");
+    return;
+  }
   const $=id=>document.getElementById(id);
   const text=(id,value)=>{if($(id))$(id).textContent=value;};
   const statuses=['checked-in','waiting','almost-ready','in-service','served'];

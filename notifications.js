@@ -3,7 +3,7 @@
   const $=id=>document.getElementById(id);
   const list=$('notificationList')||$('notifList');
   if(!list)return;
-  const username=localStorage.getItem('currentUser')||(typeof getCurrentUsername==='function'?getCurrentUsername():null);
+  const username = localStorage.getItem("currentUser");
   if(!username)return;
   const base='/notifications/user/'+encodeURIComponent(username);
   let lastUnread=null, toastTimer;

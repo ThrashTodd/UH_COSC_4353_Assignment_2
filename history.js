@@ -2,9 +2,7 @@
   const body = document.getElementById('historyTableBody');
   if (!body) return;
   const api = 'http://127.0.0.1:8000';
-  const username = typeof getCurrentUsername === 'function'
-    ? getCurrentUsername()
-    : localStorage.getItem('currentUser');
+  const username = localStorage.getItem("currentUser");
   if (!username) return;
 
   function formatDate(raw) {

@@ -1,7 +1,10 @@
 /* This file handles and displays the saved data on the dashboard and history pages. */
 (function () {
-  const username=getCurrentUsername(), user=username?getUser(username):null;
-  if(!user || user.role==='admin')return; // app.js handles redirection.
+  const username = localStorage.getItem("currentUser");
+  if (!username) {
+    window.location.replace("index.html");
+    return;
+  }
   const $=id=>document.getElementById(id);
   const text=(id,value)=>{if($(id))$(id).textContent=value;};
   function formatDate(value) {

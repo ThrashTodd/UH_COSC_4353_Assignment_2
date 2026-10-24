@@ -1,6 +1,6 @@
 const PatientData = (() => {
   const API = 'http://127.0.0.1:8000';
-  const username = () => getCurrentUsername();
+  const username = () => localStorage.getItem("currentUser");
   const emit = () => window.dispatchEvent(new Event('patient-data-changed'));
   async function request(path, options={}) {
     const response = await fetch(API + path, {
@@ -48,11 +48,10 @@ const PatientData = (() => {
     return record;
   }
   
-  function history() { return getUser(username())?.history || []; } // A2 history until History API is integrated
   function date(record) { return record.completedAt || record.date || record.endedAt || null; }
   function status(value) {
     const s=String(value || '').toLowerCase();
     return ({'checked-in':'Checked in',complete:'Completed',completed:'Completed',served:'Completed',cancelled:'Cancelled',canceled:'Cancelled',left:'Cancelled',removed:'Removed','in-service':'In service','almost-ready':'Almost ready',waiting:'Waiting'})[s] || value || 'Not recorded';
   }
-  return {username,queue,leave,history,date,status};
+  return {username,queue,leave,date,status};
 })();

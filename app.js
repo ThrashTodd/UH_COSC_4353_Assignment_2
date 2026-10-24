@@ -1,171 +1,104 @@
 (function () {
-// Authentication / current user management
-const currentUsername = localStorage.getItem("userName")
-const currentUser = currentUsername ? getUser(currentUsername) : null;
+    const API = "http://127.0.0.1:8000";
 
-function getInitials(name) {
-  return name
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0].toUpperCase())
-    .join("");
-}
+    function getInitials(name) {
+        return name
+            .split(/\s+/)
+            .filter(Boolean)
+            .slice(0, 2)
+            .map(part => part[0].toUpperCase())
+            .join("");
+    }
 
-document.querySelectorAll("[data-current-username]").forEach((element) => {
-  element.textContent = currentUsername || "User";
-});
+    function displayUser(name) {
+        document.querySelectorAll("[data-current-username]")
+            .forEach(element => {
+                element.textContent = name;
+            });
 
-document.querySelectorAll("[data-current-initials]").forEach((element) => {
-  element.textContent = getInitials(currentUsername || "User");
-});
+        document.querySelectorAll("[data-current-initials]")
+            .forEach(element => {
+                element.textContent = getInitials(name);
+            });
+    }
 
-const logoutBtn = document.getElementById("logoutBtn");
-if (logoutBtn) {
-  logoutBtn.addEventListener("click", () => {
-    localStorage.clear()
-    window.location.href = "index.html";
-  });
-}
+    async function initializePage() {
+        console.log("QueueSmart app.js loaded");
 
-// Shared navigation
-const sidebar = document.getElementById("sidebar");
-const menuBtn = document.getElementById("menuBtn");
+        const username = localStorage.getItem("currentUser");
+        console.log("Current username:", username);
 
-if (menuBtn && sidebar) {
-  menuBtn.addEventListener("click", () => {
-    sidebar.classList.toggle("open");
-  });
-}
-
-// Shared patient data; the dashboard, history and status page use the same key.
-function getQueue() { return PatientData.queue(); }
-function saveQueue(queue) { PatientData.save(queue); }
-
-// Join Queue behavior
-const serviceButtons = document.querySelectorAll(".select-service");
-
-if (serviceButtons.length) {
-  let selectedService = null;
-
-  const summaryEmpty = document.getElementById("summaryEmpty");
-  const summaryDetails = document.getElementById("summaryDetails");
-  const joinMessage = document.getElementById("joinMessage");
-
-  function selectService(button) {
-    serviceButtons.forEach((serviceButton) => {
-      serviceButton.classList.remove("selected");
-    });
-
-    button.classList.add("selected");
-
-    selectedService = {
-      service: button.dataset.service,
-      wait: Number(button.dataset.wait),
-      people: Number(button.dataset.people),
-      doctor: button.dataset.doctor
-    };
-
-    document.getElementById("summaryService").textContent = selectedService.service;
-    document.getElementById("summaryDoctor").textContent = selectedService.doctor;
-    document.getElementById("summaryPeople").textContent = selectedService.people;
-    document.getElementById("summaryWait").textContent = `~${selectedService.wait} minutes`;
-
-    summaryEmpty.classList.add("hidden");
-    summaryDetails.classList.remove("hidden");
-
-    if (joinMessage) joinMessage.classList.add("hidden");
-  }
-
-  serviceButtons.forEach((button) => {
-    button.addEventListener("click", () => selectService(button));
-  });
-
-  // Automatically select a service when the dashboard passes it in the URL.
-  const params = new URLSearchParams(location.search);
-  const requestedService = params.get("service");
-
-  if (requestedService) {
-    const matchingButton = [...serviceButtons].find(
-      (button) => button.dataset.service === requestedService
-    );
-
-    if (matchingButton) selectService(matchingButton);
-  }
-
-  const cancelSelectionBtn = document.getElementById("cancelSelectionBtn");
-
-  if (cancelSelectionBtn) {
-    cancelSelectionBtn.addEventListener("click", () => {
-      selectedService = null;
-      serviceButtons.forEach((button) => button.classList.remove("selected"));
-      summaryDetails.classList.add("hidden");
-      summaryEmpty.classList.remove("hidden");
-    });
-  }
-
-  const joinQueueBtn = document.getElementById("joinQueueBtn");
-
-  if (joinQueueBtn) {
-    joinQueueBtn.addEventListener("click", () => {
-      if (!selectedService) return;
-
-      if (getQueue()) {
-        if (joinMessage) {
-          joinMessage.textContent =
-            "You already have an active queue. Leave it from your dashboard before joining another.";
-          joinMessage.classList.remove("hidden");
-          joinMessage.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        if (!username) {
+            window.location.replace("index.html");
+            return;
         }
-        return;
-      }
 
-      const prefixes = {
-        "General Examination": "A",
-        "Dental Cleaning": "C",
-        "Emergency Care": "E",
-        "Orthodontic Consultation": "O"
-      };
+        // Display the name immediately.
+        displayUser(username);
 
-      const prefix = prefixes[selectedService.service] || "Q";
-      const ticketNumber = Math.floor(100 + Math.random() * 899);
-      const ticket = `${prefix}-${ticketNumber}`;
+        const logoutBtn = document.getElementById("logoutBtn");
 
-      const queue = {
-        id: crypto.randomUUID(),
-        status: "waiting",
-        ...selectedService,
-        position: selectedService.people + 1,
-        ticket,
-        joinedAt: new Date().toISOString()
-      };
+        if (logoutBtn) {
+            logoutBtn.addEventListener("click", function (event) {
+                event.preventDefault();
 
-      try { saveQueue(queue); } catch (error) {
-        joinMessage.textContent = error.message;
-        joinMessage.classList.remove("hidden");
-        return;
-      }
+                localStorage.removeItem("currentUser");
+                sessionStorage.removeItem("currentUser");
 
-      document.getElementById("confirmationService").textContent = queue.service;
-      document.getElementById("confirmationTicket").textContent = queue.ticket;
-      document.getElementById("confirmationPosition").textContent = `#${queue.position}`;
-      document.getElementById("confirmationWait").textContent = `~${queue.wait} min`;
+                window.location.replace("index.html");
+            });
+        } else {
+            console.warn("Logout button not found");
+        }
 
-      const successModal = document.getElementById("successModal");
-      successModal.classList.remove("hidden");
-      document.body.classList.add("modal-open");
-      document.getElementById("closeModalBtn")?.focus();
-    });
-  }
+        // Sidebar menu.
+        const menuBtn = document.getElementById("menuBtn");
+        const sidebar = document.getElementById("sidebar");
 
-  const closeModalBtn = document.getElementById("closeModalBtn");
+        menuBtn?.addEventListener("click", function () {
+            sidebar?.classList.toggle("open");
+        });
 
-  if (closeModalBtn) {
-    closeModalBtn.addEventListener("click", () => {
-      document.getElementById("successModal").classList.add("hidden");
-      document.body.classList.remove("modal-open");
-    });
-  }
-}
+        try {
+            const response = await fetch(
+                `${API}/users/${encodeURIComponent(username)}`
+            );
 
+            if (response.status === 404) {
+                localStorage.removeItem("currentUser");
+                window.location.replace("index.html");
+                return;
+            }
+
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+            }
+
+            const user = await response.json();
+
+            if (user.role !== "user") {
+                window.location.replace(
+                    user.role === "admin"
+                        ? "admin.html"
+                        : "index.html"
+                );
+                return;
+            }
+
+            displayUser(user.username);
+
+        } catch (error) {
+            console.error("Backend account lookup failed:", error);
+        }
+    }
+
+    if (document.readyState === "loading") {
+        document.addEventListener(
+            "DOMContentLoaded",
+            initializePage,
+            { once: true }
+        );
+    } else {
+        initializePage();
+    }
 })();

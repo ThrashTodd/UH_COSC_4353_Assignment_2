@@ -32,7 +32,7 @@
         people.textContent = `${queue.waiting_count} waiting`;
 
         const wait = document.createElement("strong");
-        const estimatedWait = queue.waiting_count * service.duration;
+        const estimatedWait = queue.next_estimated_wait;
         wait.textContent = `~${estimatedWait} min`;
 
         meta.append(people, wait);
@@ -61,9 +61,8 @@
             const cards = await Promise.all(
                 openServices.map(async service => {
                     const queue = await api(
-                        `/queues/${encodeURIComponent(service.id)}`
+                        `/wait-times/${encodeURIComponent(service.id)}`
                     );
-
                     return createServiceCard(service, queue);
                 })
             );

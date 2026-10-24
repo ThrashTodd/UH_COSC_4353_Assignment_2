@@ -9,23 +9,23 @@
  function error(message){$('joinMessage').textContent=message;$('joinMessage').classList.remove('hidden');}
  async function select(service){
    chosen=service;
-   const status=await api('/queues/'+encodeURIComponent(service.id));
+   const status = await api('/wait-times/' + encodeURIComponent(service.id));
    $('summaryService').textContent=service.name;
    $('summaryDoctor').textContent='Not assigned';
    $('summaryPeople').textContent=status.waiting_count;
-   $('summaryWait').textContent=`~${status.waiting_count*service.duration} minutes`;
+   $('summaryWait').textContent=`~${status.next_estimated_wait} minutes`;
    $('summaryEmpty').classList.add('hidden');$('summaryDetails').classList.remove('hidden');
  }
  async function load(){
    const services=await api('/services');$('serviceList').replaceChildren();
    for(const service of services.filter(s=>s.isOpen)){
-     const status=await api('/queues/'+encodeURIComponent(service.id));
+     const status = await api('/wait-times/' + encodeURIComponent(service.id));
      const btn=document.createElement('button');btn.type='button';btn.className='select-service';
      const copy=document.createElement('div');copy.className='service-copy';
      const title=document.createElement('strong');title.textContent=service.name;
      const desc=document.createElement('span');desc.textContent=service.description;copy.append(title,desc);
      const info=document.createElement('div');info.className='service-wait';
-     const wait=document.createElement('strong');wait.textContent=`~${status.waiting_count*service.duration} min`;
+     const wait=document.createElement('strong');wait.textContent=`~${status.next_estimated_wait} min`;
      const people=document.createElement('span');people.textContent=`${status.waiting_count} waiting`;info.append(wait,people);
      btn.append(copy,info);btn.addEventListener('click',()=>{
        document.querySelectorAll('.select-service').forEach(el=>el.classList.remove('selected'));

@@ -4,7 +4,7 @@ from main import app
 
 client = TestClient(app)
 
-# python -m pytest backend/test_auth.py -v
+# python -m pytest -v
 # has depreciation warning but its a problem with fastAPI package
 '''
 def test_login_success_admin():
@@ -58,8 +58,8 @@ def test_login_incorrect_password():
     
     assert response.status_code == 401
     assert response.json()["detail"] == "Password incorrect"
-    '''
-
+    
+'''
 def test_login_validation_error():
     """Test that a missing payload field returns a 422 validation error from FastAPI."""
     # Omitting the password field completely to trigger Pydantic schema failure

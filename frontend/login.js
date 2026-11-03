@@ -1,6 +1,9 @@
 const form = document.getElementById("form")
 const usernameInput = document.getElementById("usernameInput")
+const firstNameInput = document.getElementById("firstNameInput")
+const lastNameInput = document.getElementById("lastNameInput")
 const emailInput = document.getElementById("emailInput")
+const phoneInput = document.getElementById("phoneInput")
 const passwordInput = document.getElementById("passwordInput")
 const confirmPasswordInput = document.getElementById("confirmPassword")
 const errorMessage = document.getElementById("errorMessage")
@@ -15,8 +18,11 @@ function handleFormSubmit(event) {
   const isRegistrationPage = Boolean(emailInput);
   const errors = isRegistrationPage
     ? getRegisterErrors(
+        firstNameInput.value,
+        lastNameInput.value,
         usernameInput.value,
         emailInput.value,
+        phoneInput.value,
         passwordInput.value,
         confirmPasswordInput.value
       )
@@ -78,8 +84,13 @@ async function loginUser() {
 
 
 async function registerUser() {
+  const firstName = firstNameInput.value.trim()
+  const lastName = lastNameInput.value.trim()
+
   const username = usernameInput.value.trim()
   const email = emailInput.value.trim()
+  const phone = phoneInput.value.trim()
+
   const password = passwordInput.value
 
   try {
@@ -91,14 +102,18 @@ async function registerUser() {
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
+          firstName: firstName,
+          lastName: lastName,
           username: username,
           email: email,
+          phone_number: phone || null,
           password: password
         })
       }
     )
 
     const data = await response.json()
+
     if (!response.ok) {
       showErrors([data.detail])
       return
@@ -131,8 +146,18 @@ function getLoginErrors(username, password) {
   return errors;
 }
 
-function getRegisterErrors(username, email, password, confirmPasswordValue) {
+function getRegisterErrors(firstName, lastName, username, email, phone, password, confirmPasswordValue) {
   const errors = getLoginErrors(username, password);
+
+  if(!firstName.trim()) {
+    errors.push("First name is required")
+    markIncorrect(firstNameInput)
+  }
+
+  if(!lastName.trim()) {
+    errors.push("Last name is required")
+    markIncorrect(lastNameInput)
+  }
 
   if (!email.trim()) {
     errors.push("Email is required");
@@ -142,6 +167,11 @@ function getRegisterErrors(username, email, password, confirmPasswordValue) {
   if(!(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email.trim()))) {
     errors.push("Email not valid")
     markIncorrect(emailInput)
+  }
+// validate phone length
+  if(phoneInput.trim().length > 25) {
+    errors.push("Phone number must be 25 characters or less")
+    markIncorrect(phoneInput)
   }
 
   if (password && password.length < 8) {
@@ -171,8 +201,11 @@ function showErrors(errors) {
 }
 
 const allInputs = [
+  firstNameInput,
+  lastNameInput,
   usernameInput,
   emailInput,
+  phoneInput,
   passwordInput,
   confirmPasswordInput
 ].filter(Boolean);

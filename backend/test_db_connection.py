@@ -2,9 +2,9 @@
 from db_connection import get_connection
 
 
-def test_connection(is_test = False):
+def test_connection():
     try:
-        with get_connection(is_test) as conn:
+        with get_connection() as conn:
             with conn.cursor() as cursor:
                 cursor.execute("SELECT current_database()")
                 database_name = cursor.fetchone()[0]
@@ -32,4 +32,4 @@ def test_connection(is_test = False):
 
 
 if __name__ == "__main__":
-    test_connection(is_test= False)
+    test_connection()

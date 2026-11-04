@@ -61,7 +61,7 @@ def login(request: LoginRequest):
         ):
         raise HTTPException(
             status_code=401,
-            detail="Passowrd incorrect"
+            detail="Password incorrect"
         )
 
     # successful login
@@ -166,50 +166,3 @@ def register(request: RegisterRequest):
             status_code= 409,
             detail= "Username or email already exists"
         )
-    
-    # if username taken
-    if username in user_db:
-        raise HTTPException(
-            status_code=409,
-            detail="Username taken, try again"
-        )
-    # success and add to database
-    user_db[username] = {
-        "email": email,
-        "password": request.password,
-        "role": "user",
-        "history": []
-    }
-
-    return {
-        "message": "Registration successful",
-        "username": username
-    }
-
-
-
-# added get for user
-class UserResponse(BaseModel):
-    username: str
-    role: str
-    history: list
-
-@router.get("/users/{username}", response_model=UserResponse)
-def read_user(username: str):
-    def get_user(username: str):
-        user = user_db.get(username)
-
-        if user is None:
-            raise HTTPException(
-                status_code=404,
-                detail="User not found"
-            )
-        return user
-
-    user = get_user(username)
-
-    return {
-        "username": username,
-        "role": user["role"],
-        "history": user["history"]
-    }

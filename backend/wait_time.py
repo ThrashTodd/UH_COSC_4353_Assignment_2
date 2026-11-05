@@ -3,13 +3,14 @@ This module will be used to calculate the wait time for a patient based on the c
 improve later in the project to consider the priority of the patients in the queue. """
 
 from fastapi import HTTPException
-from database import services, queues
+from database import queues
+import service_repository as service_repo
 
 def _duration(service_id: str) -> int:
-    service = services.get(service_id)
+    service = service_repo.get_service(service_id)
     if service is None:
         raise HTTPException(status_code=404, detail="Service not found")
-    duration = service.get("duration")
+    duration = service["duration"]
     if type(duration) is not int or duration <= 0:
         raise HTTPException(status_code=422, detail="Service duration must be a positive integer")
     return duration
@@ -33,7 +34,9 @@ def estimate_entries(service_id: str, entries: list[dict]) -> list[dict]:
 #Preview wait for the next patient along with current patients' live time estimate 
 def estimate_service(service_id: str) -> dict:
     duration = _duration(service_id)
-    service = services[service_id]
+    service = service_repo.get_service(service_id)
+    if service is None:
+        raise HTTPException(status_code=404, detail="Service not found")
     entries = estimate_entries(service_id, queues.get(service_id, []))
     return {
         "service_id": service_id,

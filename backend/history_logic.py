@@ -1,14 +1,16 @@
 from fastapi import HTTPException
-from database import queue_history, services, user_db
+from database import queue_history, user_db
+import service_repository as service_repo
 
 def normalize_queue(record):
     service_id = record.get('service_id')
+    service = service_repo.get_service(service_id) if service_id else None
     return {
         'id': record['id'],
         'username': record['username'],
         'ticket': record.get('ticket'),
         'service_id': service_id,
-        'service': services.get(service_id, {}).get('name', service_id or 'Unknown service'),
+        'service': service["name"] if service else (service_id or 'Unknown service'),
         'status': record['status'],
         'joined_at': record.get('joined_at'),
         'ended_at': record.get('ended_at'),

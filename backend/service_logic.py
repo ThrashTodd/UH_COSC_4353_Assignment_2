@@ -1,11 +1,6 @@
 import re
 from fastapi import HTTPException
-
-# don't import the database instead import the service_repository
-from database import services
-import notification_logic
-# import service_repository as repo
-
+from psycopg.errors import ForeignKeyViolation, UniqueViolation
 from database import queues as memory_queues  # Temporary until Queue Management migrates
 import notification_logic
 import service_repository as repo

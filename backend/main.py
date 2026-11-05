@@ -1,6 +1,8 @@
 import logging
 from typing import Literal
-from fastapi import FastAPI, Response, APIRouter
+from fastapi import FastAPI, Response, APIRouter, HTTPException
+from db_connection import get_connection
+from psycopg.rows import dict_row
 from pydantic import BaseModel, Field, field_validator
 from fastapi.middleware.cors import CORSMiddleware
 from auth import router as auth_router
@@ -51,6 +53,58 @@ class StatusInput(BaseModel):
 def health():
     return {"status": "ok"}
 
+# Check the PostgreSQL database connection
+@app.get("/db/health", tags=["Database"])
+def database_health():
+    try:
+        with get_connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute("SELECT current_database()")
+                database_name = cursor.fetchone()[0]
+
+        return {
+            "status": "connected",
+            "database": database_name
+        }
+
+    except Exception:
+        logging.exception("Database connection failed")
+        raise HTTPException(
+            status_code=503,
+            detail="Database connection unavailable"
+        )
+
+
+# Retrieve services directly from PostgreSQL
+@app.get("/db/services", tags=["Database"])
+def database_services():
+    query = """
+        SELECT
+            s.service_id AS id,
+            s.service_name AS name,
+            s.description,
+            s.expected_duration AS duration,
+            s.priority_level AS priority,
+            (q.status = 'open') AS "isOpen"
+        FROM service s
+        INNER JOIN queue q
+            ON s.service_id = q.service_id
+        ORDER BY s.service_name
+    """
+
+    try:
+        with get_connection() as conn:
+            with conn.cursor(row_factory=dict_row) as cursor:
+                cursor.execute(query)
+                return cursor.fetchall()
+
+    except Exception:
+        logging.exception("Failed to retrieve database services")
+        raise HTTPException(
+            status_code=503,
+            detail="Database query failed"
+        )
+    
 #Get all services
 @app.get("/services")
 def list_services():

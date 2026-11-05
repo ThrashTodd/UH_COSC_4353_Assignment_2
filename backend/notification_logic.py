@@ -4,7 +4,8 @@ from typing import Literal, Optional
 from uuid import uuid4
 from fastapi import HTTPException
 from pydantic import BaseModel, Field
-from database import notifications, user_db, services, queues
+from database import notifications, user_db, queues
+import service_repository as service_repo
 
 logger = logging.getLogger("queuesense.notifications")
 
@@ -31,7 +32,7 @@ def timestamp():
     return datetime.now(timezone.utc).isoformat()
 
 def service_name(service_id):
-    service = services.get(service_id)
+    service = service_repo.get_service(service_id)
     return service["name"] if service else "your service"
 
 def create_notification(username, type, title, message, service_id=None, ticket=None):

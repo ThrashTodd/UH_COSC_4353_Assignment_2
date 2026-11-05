@@ -4,7 +4,8 @@ The queue operations is shared by patient and the administrator
 from datetime import datetime, timezone
 from uuid import uuid4
 from fastapi import HTTPException
-from database import services, user_db, queues, queue_history
+from database import user_db, queues, queue_history
+import service_repository as service_repo
 import notification_logic
 import wait_time
 
@@ -16,7 +17,7 @@ def timestamp():
 
 #Look up a service using its UNIQUE ID
 def _service(service_id):
-    service = services.get(service_id)
+    service = service_repo.get_service(service_id)
     if service is None:
         raise HTTPException(404, "Service not found")
     return service
@@ -47,7 +48,7 @@ def get_queue(service_id):
 
 #Retrive the queue information for every service
 def list_queues():
-    return [get_queue(sid) for sid in services]
+    return [get_queue(service["id"]) for service in service_repo.list_services()]
 
 #Allow a patient to join a service queue 
 def join_queue(service_id, username, priority="medium"):

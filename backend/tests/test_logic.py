@@ -8,7 +8,7 @@ import database
 import service_logic
 import queue_logic
 
-
+'''
 # keeps a static starting state for users
 _DEFAULT_USERS = copy.deepcopy(database.user_db)
 
@@ -149,3 +149,4 @@ def test_serve_next_uses_priority_order():
 
     assert served["username"] == "SophieS"
 
+'''

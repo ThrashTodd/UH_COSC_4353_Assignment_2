@@ -64,4 +64,4 @@ jobs:
         env:
           PYTHONPATH: backend
         run: |
-          python -m pytest backend/tests -v
+          python -m pytest -v --cov=backend backend/tests

@@ -166,3 +166,37 @@ def register(request: RegisterRequest):
             status_code= 409,
             detail= "Username or email already exists"
         )
+
+@router.get("/users/{username}")
+def get_user(username: str):
+    with get_connection() as conn:
+        with conn.cursor() as cursor:
+            cursor.execute(
+                """
+                SELECT
+                    u.username,
+                    u.role,
+                    p.first_name,
+                    p.last_name
+                FROM user_credentials u
+                LEFT JOIN user_profile p
+                    ON u.user_id = p.user_id
+                WHERE u.username = %s
+                """,
+                (username,)
+            )
+
+            user = cursor.fetchone()
+
+    if user is None:
+        raise HTTPException(
+            status_code=404,
+            detail="User not found"
+        )
+
+    return {
+        "username": user[0],
+        "role": user[1],
+        "first_name": user[2],
+        "last_name": user[3]
+    }

@@ -1,7 +1,6 @@
 import re
 from fastapi import HTTPException
 from psycopg.errors import ForeignKeyViolation, UniqueViolation
-from database import queues as memory_queues  # Temporary until Queue Management migrates
 import notification_logic
 import service_repository as repo
 
@@ -16,7 +15,6 @@ def make_id(name: str) -> str:
         index += 1
     return candidate
 
-
 #Get all services
 def list_services():
     return repo.list_services()
@@ -25,50 +23,47 @@ def list_services():
 def get_service(service_id: str):
     service = repo.get_service(service_id)
     if service is None:
-        raise HTTPException(status_code=404, detail="Service not found")
+        raise HTTPException(404, "Service not found")
     return service
 
 #Create a new service
 def create_service(data):
-    new_service = {"id": make_id(data.name), **data.model_dump(), "isOpen": True}
+    service = {"id": make_id(data.name), **data.model_dump(), "isOpen": True}
     try:
-        return repo.create_service(new_service)
+        return repo.create_service(service)
     except UniqueViolation:
-        raise HTTPException(status_code=409, detail="Service name or ID already exists")
+        raise HTTPException(409, "Service name or ID already exists")
+
 
 #Update an existing service by its ID
 def update_service(service_id: str, data):
     try:
         updated = repo.update_service(service_id, data.model_dump())
     except UniqueViolation:
-        raise HTTPException(status_code=409, detail="Service name already exists")
+        raise HTTPException(409, "Service name already exists")
     if updated is None:
-        raise HTTPException(status_code=404, detail="Service not found")
+        raise HTTPException(404, "Service not found")
     return updated
-
 
 #Open or close a service
 def change_status(service_id: str, is_open: bool):
     previous = get_service(service_id)
     updated = repo.change_status(service_id, is_open)
     if updated is None:
-        raise HTTPException(status_code=404, detail="Service not found")
+        raise HTTPException(404, "Service not found")
     if previous["isOpen"] and not is_open:
         notification_logic.notify_queue_closed(service_id)
     return updated
 
 #Delete a service by its ID
 def delete_service(service_id: str):
-    # Do not orphan patients in the old in-memory queues during migration.
-    if memory_queues.get(service_id):
-        raise HTTPException(status_code=409, detail="Service has active queue entries")
+    # The DB's foreign key prevents deleting any service with queue_entry records.
     try:
         deleted = repo.delete_service(service_id)
     except ForeignKeyViolation:
-        raise HTTPException(status_code=409, detail="Service is referenced by queue history")
+        raise HTTPException(409, "Service has current or historical queue entries")
     if not deleted:
-        raise HTTPException(status_code=404, detail="Service not found")
-
+        raise HTTPException(404, "Service not found")
 
 '''
 #Generate a unique service ID based on the service name

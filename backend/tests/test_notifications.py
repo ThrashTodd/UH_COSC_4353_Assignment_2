@@ -8,7 +8,7 @@ from pydantic import ValidationError
 import notification_logic
 from db_connection import get_connection
 
-SERVICE = "gen-exan"
+SERVICE = "gen-exam"
 CLOSED_SERVICE = "ortho-cons"
 PATIENTS = ["user1", "ArthurM", "SophieS"]
 

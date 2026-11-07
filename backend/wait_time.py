@@ -3,17 +3,14 @@ This module will be used to calculate the wait time for a patient based on the c
 improve later in the project to consider the priority of the patients in the queue. """
 
 from fastapi import HTTPException
-from database import queues
+import queue_repository as queue_repo
 import service_repository as service_repo
 
-def _duration(service_id: str) -> int:
+def _service(service_id):
     service = service_repo.get_service(service_id)
     if service is None:
-        raise HTTPException(status_code=404, detail="Service not found")
-    duration = service["duration"]
-    if type(duration) is not int or duration <= 0:
-        raise HTTPException(status_code=422, detail="Service duration must be a positive integer")
-    return duration
+        raise HTTPException(404, "Service not found")
+    return service
 
 #The wait time is calcuated as (position -1) * duration, where position is the patient's position in the queue and duration is the service duration.
 def estimate_wait_minutes(position: int, duration: int) -> int:
@@ -25,27 +22,26 @@ def estimate_wait_minutes(position: int, duration: int) -> int:
 
 #This function estimates the wait time for each patient in the queue based on their position and the service duration.  
 def estimate_entries(service_id: str, entries: list[dict]) -> list[dict]:
-    duration = _duration(service_id)
+    duration = _service(service_id)["duration"]
     return [
-        {**entry, "position": index, "estimated_wait": estimate_wait_minutes(index, duration)}
-        for index, entry in enumerate(entries, start=1)
+        {**entry,
+         "estimated_wait": estimate_wait_minutes(entry.get("position") or i, duration)}
+        for i, entry in enumerate(entries, start=1)
     ]
 
 #Preview wait for the next patient along with current patients' live time estimate 
 def estimate_service(service_id: str) -> dict:
-    duration = _duration(service_id)
-    service = service_repo.get_service(service_id)
-    if service is None:
-        raise HTTPException(status_code=404, detail="Service not found")
-    entries = estimate_entries(service_id, queues.get(service_id, []))
+    service = _service(service_id)
+    entries = queue_repo.list_waiting(service_id)
+    count = len(entries)
     return {
         "service_id": service_id,
         "service_name": service["name"],
         "isOpen": service["isOpen"],
-        "duration": duration,
-        "waiting_count": len(entries),
-        "next_position": len(entries) + 1,
-        "next_estimated_wait": len(entries) * duration,
+        "duration": service["duration"],
+        "waiting_count": count,
+        "next_position": count + 1,
+        "next_estimated_wait": count * service["duration"],
         "method": "single_provider_expected_duration",
         "entries": entries,
     }

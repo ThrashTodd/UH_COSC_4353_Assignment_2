@@ -102,8 +102,8 @@ async function registerUser() {
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          firstName: firstName,
-          lastName: lastName,
+          first_name: firstName,
+          last_name: lastName,
           username: username,
           email: email,
           phone_number: phone || null,
@@ -169,10 +169,10 @@ function getRegisterErrors(firstName, lastName, username, email, phone, password
     markIncorrect(emailInput)
   }
 // validate phone length
-  if(phoneInput.trim().length > 25) {
-    errors.push("Phone number must be 25 characters or less")
-    markIncorrect(phoneInput)
-  }
+if (phone.trim().length > 25) {
+    errors.push("Phone number must be 25 characters or less");
+    markIncorrect(phoneInput);
+}
 
   if (password && password.length < 8) {
     errors.push("Password must be at least 8 characters");

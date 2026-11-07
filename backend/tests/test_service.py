@@ -3,155 +3,197 @@ from fastapi.testclient import TestClient
 from main import app
 import service_logic
 
-client = TestClient(app)
 
-# python -m pytest backend/test_service_logic.py -v
+def test_list_services(client, test_services):
 
-def test_list_services(monkeypatch):
-    # test listing services
-    # mock data
-    mock_db_data = {
-        "support" : { "id" : "genExam", "name" : "General Exam", "description" : "General Exam" }
-    }
-
-    monkeypatch.setattr(service_logic, "services", mock_db_data)
+    expected_services = [
+        {
+            "id": service[0],
+            "name": service[1],
+            "description": service[2],
+            "duration": service[3],
+            "priority": service[4],
+            "isOpen": service[5] == "open"
+        }
+        for service in test_services
+    ]
 
     response = client.get('/services')
 
     assert response.status_code == 200
-    assert response.json() == list(mock_db_data.values())
-
-def test_get_service_success(monkeypatch):
-    # test get service by id success
-    # mock data
-        mock_data = {
-            "genExam" : { "id" : "genExam", "name" : "General Exam", "description" : "General Exam" }
-        }
-
-        monkeypatch.setattr(service_logic, "services", mock_data)
-
-        response = client.get('/services/genExam')
-
-        assert response.status_code == 200
-        assert response.json() == { "id" : "genExam", "name" : "General Exam", "description" : "General Exam" }
-
-def test_get_service_failure(monkeypatch):
-    # test get service by id failure
-    # mock data
-        mock_data = {
-            "genExam" : { "id" : "genExam", "name" : "General Exam", "description" : "General Exam" }
-        }
-
-        monkeypatch.setattr(service_logic, "services", mock_data)
-
-        response = client.get('/services/missingService')
-
-        assert response.status_code == 404
-        assert response.json()['detail'] == "Service not found"
-
-def test_create_service(monkeypatch):
-       payload = {
-              "name" : "Consultation",
-              "description" : "General consultation meeting",
-              "duration" : 30,
-              "priority" : "low"
-       }
-       expected_service = {
-              "id": "consultation",
-              **payload,
-              "isOpen": True
-       }
-       monkeypatch.setattr(service_logic, "create_service", lambda body: expected_service)
-
-       response = client.post("/services", json=payload)
-
-       assert response.status_code == 201
-       assert response.json() == expected_service
-
-def test_create_service_invalid_duration():
-    payload = {
-        "name": "Consultation",
-        "description": "General consultation meeting",
-        "duration": 0,
-        "priority": "low",
-    }
-
-    response = client.post("/services", json=payload)
-
-    assert response.status_code == 422
+    assert sorted(response.json(), key=lambda s: s["id"]) == sorted(expected_services, key=lambda s: s["id"])
 
 
-def test_create_service_invalid_priority():
+def test_get_service_success(client, test_services):
+
+     service = test_services[0]
+
+     expected_service = [
+             {
+                 "id": service[0],
+                 "name": service[1],
+                 "description": service[2],
+                 "duration": service[3],
+                 "priority": service[4],
+                 "isOpen": service[5] == "open"
+             }
+     ]
+
+     response = client.get('/services/gen-exam')
+
+     assert response.status_code == 200
+     assert response.json() == expected_service[0]
+
+
+def test_get_service_failure(client, test_services):
+
+    service = test_services[0]
+
+    response = client.get('/services/bad_exam')
+
+    assert response.status_code == 404
+    assert response.json()['detail'] == "Service not found"
+
+
+def test_create_service(client):
+
     payload = {
         "name": "Consultation",
         "description": "General consultation meeting",
         "duration": 30,
-        "priority": "urgent",
+        "priority": "low",
+        "isOpen": "open" == "open"
     }
 
-    response = client.post("/services", json=payload)
+    response = client.post('/services', json=payload)
 
+    assert response.status_code == 201
+
+    expected = payload
+    expected["id"] = "consultation"
+
+    assert response.json() == expected
+
+    get_response = client.get('/services/consultation')
+
+    assert get_response.status_code == 200
+    assert get_response.json() == expected
+
+
+def test_create_service_invalid_duration(client):
+
+    payload = {
+        "name": "Consultation",
+        "description": "General consultation meeting",
+        "duration": "hour",
+        "priority": "low",
+        "isOpen": "open" == "open"
+    }
+    
+    response = client.post('/services', json=payload)
+    
     assert response.status_code == 422
 
 
-def test_create_service_whitespace_name():
+def test_create_service_invalid_priority(client):
+
+    payload = {
+        "name": "Consultation",
+        "description": "General consultation meeting",
+        "duration": 30,
+        "priority": "huge",
+        "isOpen": "open" == "open"
+    }
+    
+    response = client.post('/services', json=payload)
+    
+    assert response.status_code == 422
+
+
+def test_create_service_whitespace_name(client):
+
     payload = {
         "name": "   ",
         "description": "General consultation meeting",
         "duration": 30,
         "priority": "low",
     }
-
-    response = client.post("/services", json=payload)
-
+    
+    response = client.post('/services', json=payload)
+    
     assert response.status_code == 422
 
-def test_update_service(monkeypatch):
+def test_update_service(client, test_services):
+
+    service_id = "gen-exam"
+
     payload = {
-        "name": "Updated Consultation",
-        "description": "Updated description",
-        "duration": 45,
+        "name": "updated name",
+        "description": "updated desc",
+        "duration": 60,
         "priority": "high"
     }
+    
+    expected_service = payload
+    expected_service["id"] = "gen-exam"
+    expected_service["isOpen"] = 1
 
-    expected_service = {
-        "id": "consultation",
-        **payload,
-        "isOpen": True
-    }
-
-    monkeypatch.setattr(service_logic, "update_service", lambda service_id, body: expected_service)
-
-    response = client.put("/services/consultation", json=payload)
+    response = client.put('/services/gen-exam', json=payload)
 
     assert response.status_code == 200
     assert response.json() == expected_service
 
-def test_change_service_status(monkeypatch):
+    get_response = client.get('/services/gen-exam')
+
+    assert get_response.status_code == 200
+    assert get_response.json() == expected_service
+
+
+def test_update_missing_service(client):
+
+    payload = {
+            "name": "updated name",
+            "description": "updated desc",
+            "duration": 60,
+            "priority": "high"
+        }
+
+    response = client.put('/services/missing_service', json=payload)
+
+    assert response.status_code == 404
+    assert response.json()['detail'] == "Service not found"
+
+
+def test_change_service_status(client, test_services):
+
+    service = test_services[0]
     expected_service = {
-        "id": "genExam",
-        "name": "General Exam",
-        "isOpen": False
-    }
+            "id": service[0],
+            "name": service[1],
+            "description": service[2],
+            "duration": service[3],
+            "priority": service[4],
+            "isOpen": service[5] == "false"
+        }
+    
 
-    monkeypatch.setattr(service_logic, "change_status", lambda service_id, is_open: expected_service)
-
-    response = client.patch("services/genExam/status", json={"isOpen": False})
+    response = client.patch("/services/gen-exam/status", json={"isOpen":False})
 
     assert response.status_code == 200
     assert response.json()["isOpen"] is False
 
-def test_delete_service(monkeypatch):
-    deleted = []
+    get_response = client.get('/services/gen-exam')
+    
+    assert get_response.status_code == 200
+    assert get_response.json() == expected_service
 
-    def mock_delete(service_id):
-          deleted.append(service_id)
 
-    monkeypatch.setattr(service_logic, "delete_service", mock_delete)
+def test_delete_service(client, test_services):
 
-    response = client.delete("/services/genExam")
+    response = client.delete('/services/gen-exam')
 
     assert response.status_code == 204
-    assert response.content == b""
-    assert deleted == ["genExam"]
 
+    get_response = client.get('/services/gen-exam')
+
+    assert get_response.status_code == 404

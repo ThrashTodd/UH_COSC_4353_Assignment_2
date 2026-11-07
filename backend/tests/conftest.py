@@ -9,6 +9,7 @@ import bcrypt
 
 
 '''
+python -m pytest -v --cov=backend  
 before every pytest it deletes all data and and resets auto increment for ids in the test database
 '''
 
@@ -94,7 +95,7 @@ def test_services():
 
     services = [
         (
-            "gen-exan",
+            "gen-exam",
             "General Examination",
             "Routine dental examination and consultation.",
             20,
